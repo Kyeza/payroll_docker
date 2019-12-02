@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+  web:
+    image: kyeza95/payroll:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - media:/hr_system/media
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    env_file: &environ_file
+      - .env
+    depends_on:
+      - db
+      - rabbitmq
+      - celery_worker
+
+  db:
+    image: mysql:5.7
+    ports:
+      - '13306:3306'
+    env_file: *environ_file
+    volumes:
+      - dbdata:/var/lib/mysql
+
+  celery_worker:
+    image: kyeza95/payroll:latest
+    env_file: *environ_file
+    command: celery -A hr_system worker --loglevel=info -E --uid=celery
+    depends_on:
+      - rabbitmq
+      - db
+
+  rabbitmq:
+    image: rabbitmq:3.7-alpine
+    env_file: *environ_file
+    ports:
+      - "5672:5672"
+
+volumes:
+  dbdata:
+  media:
