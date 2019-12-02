@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <legend class="border-bottom mb-4">Organization</legend>
+        Name: <p style="font-weight: bold">{{ object.name }}</p>
+        Country: <p style="font-weight: bold">{{ object.country }}</p>
+        <a class="btn btn-success" href="{% url 'support_data:organization-list' %}">
+            CLOSE
+        </a>
+    </div>
+{% endblock content %}

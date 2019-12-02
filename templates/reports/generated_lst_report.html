@@ -1,0 +1,54 @@
+{% load users_extras %}
+{% load reports_extras %}
+{% load humanize %}
+
+{% for period, data in results.items %}
+    <h4 class="border-top pt-4 mb-2 text-center">
+        {{ period.payroll_center }}
+    </h4>
+    <h5 class="border-bottom mb-5 text-center">
+        {{ report }} REPORT FOR PERIOD
+        <span style="color: #2196F3">{{ period.month }}, {{ period.year }}</span>
+    </h5>
+    <div class="table-responsive">
+        <table id="lst_table_id" class="table table-sm table-striped table-bordered w-100">
+            <caption class="border-bottom mb-5">
+                {{ report }} REPORT FOR PERIOD
+                <span style="color: #2196F3">{{ period.month }}, {{ period.year }}</span>
+            </caption>
+            <thead class="thead-dark">
+            <tr>
+                <th>No.</th>
+                <th>Name</th>
+                <th>Duty Station</th>
+                <th>Gross pay</th>
+                <th>LST</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for staff in data|get_distinct_employee_set %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ staff.user.get_full_name }}</td>
+                    <td>{{ staff.duty_station }}</td>
+                    {% with staff|report:period as report %}
+                        <td>{{ report.gross_earning|intcomma }}</td>
+                    {% endwith %}
+                    {% for info in data|category:2|user_data:staff %}
+                        {% for k, amount in info.items %}
+                                <th>{{ amount }}</th>
+                            {% endfor %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <th class="font-weight-light text-info text-center" colspan="3">Total</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+{% endfor %}

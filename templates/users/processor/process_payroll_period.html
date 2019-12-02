@@ -1,0 +1,121 @@
+{% extends 'payroll/../base.html' %}
+
+{% block content %}
+    <div class="content-section">
+        <h5 class="border-bottom mb-4">
+            {{ payroll_period }} Payroll Information for {{ payroll_period.month }}, {{ payroll_period.year }}
+        </h5>
+        <div class="table-responsive">
+            <table class="table table-sm table-borderless table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Staff</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th>Department</th>
+                    <th>Position</th>
+                    <th></th>
+                    <th>Duty station</th>
+                    <th>Basic Salary</th>
+                    <th>Acting Allowance</th>
+                    <th>Car/Transport Allowance</th>
+                    <th>Duty/Risk/Out of station Allowance</th>
+                    <th>Overtime (Normal days)</th>
+                    <th>Overtime (Weekend/Holidays)</th>
+                    <th>Housing Allowance</th>
+                    <th>Bonus</th>
+                    <th>Income Tax/PAYE</th>
+                    <th>Pension Fund/NSSF/SOCIAL SECURITY</th>
+                    <th>LST</th>
+                    <th>Bank loan</th>
+                    <th>Salary Advance</th>
+                    <th>Salary Arrears</th>
+                    <th>Other Allowances</th>
+                    <th>Other deductions</th>
+                    <th>Total Taxable</th>
+                    <th>Total Earnings</th>
+                    <th>ToTal Deductions</th>
+                    <th>Net pay</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for user_report in period_report %}
+                    <tr>
+                        <td colspan="8">
+                            <a href="{% url 'reports:report-update' pk=user_report.id %}">
+                                {{ user_report.employee.user.get_full_name }}
+                            </a>
+                        </td>
+                        {% if user_report.employee.department %}
+                            <td>{{ user_report.employee.department }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                        {% if user_report.employee.job_title %}
+                            <td colspan="2">{{ user_report.employee.job_title }}</td>
+                        {% else %}
+                            <td colspan="2"></td>
+                        {% endif %}
+                        {% if user_report.employee.duty_station %}
+                            <td>{{ user_report.employee.duty_station }}</td>
+                        {% else %}
+                            <td></td>
+                        {% endif %}
+                        <td>{{ user_report.employee.gross_salary }}</td>
+                        <td>{{ user_report.acting_allowance }}</td>
+                        <td>{{ user_report.car_transport_allowance }}</td>
+                        <td>{{ user_report.duty_risk_allowance }}</td>
+                        <td>{{ user_report.overtime_normal_days }}</td>
+                        <td>{{ user_report.overtime_holiday }}</td>
+                        <td>{{ user_report.housing_allowance }}</td>
+                        <td>{{ user_report.bonus }}</td>
+                        <td>{{ user_report.income_tax_paye }}</td>
+                        <td>{{ user_report.pension_fund }}</td>
+                        <td>{{ user_report.lst }}</td>
+                        <td>{{ user_report.bank_loan }}</td>
+                        <td>{{ user_report.salary_advance }}</td>
+                        <td>{{ user_report.salary_arrears }}</td>
+                        <td>{{ user_report.other_allowances }}</td>
+                        <td>{{ user_report.other_deductions }}</td>
+                        <td>{{ user_report.total_taxable }}</td>
+                        <td>{{ user_report.total_earning }}</td>
+                        <td>{{ user_report.total_deductions }}</td>
+                        <td>{{ user_report.net_pay }}</td>
+                    </tr>
+                {% empty %}
+                    <p class="text-center">Payroll period not processed yet</p>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex flex-row justify-content-end">
+            {% if is_paginated %}
+
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-outline-primary mb-4" href="?page=1">First</a>
+                    <a class="btn btn-outline-primary mb-4"
+                       href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <a class="btn btn-primary mb-4" href="?page={{ num }}">{{ num }}</a>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a class="btn btn-outline-primary mb-4" href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a class="btn btn-outline-primary mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a class="btn btn-outline-primary mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                {% endif %}
+
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

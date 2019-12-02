@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">Duty Station</h3>
+        Name: <p style="font-weight: bold">{{ object.duty_station }}</p>
+        Country: <p style="font-weight: bold">{{ object.country }}</p>
+        Description: <p style="font-weight: bold">{{ object.description }}</p>
+        <a class="btn btn-success" href="{% url 'support_data:duty-station-list' %}">
+            BACK
+        </a>
+    </div>
+{% endblock content %}

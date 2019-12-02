@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">SOF</h3>
+        SOF code: <p style="font-weight: bold">{{ object.sof_code}}</p>
+        DEA code: <p style="font-weight: bold">{{ object.dea_code}}</p>
+        DEA name: <p style="font-weight: bold">{{ object.dea_name }}</p>
+        <a class="btn btn-success" href="{% url 'users:dea-list' %}">
+            BACK
+        </a>
+    </div>
+{% endblock content %}

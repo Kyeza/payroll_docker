@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <form id="registrationForm" class="w-100" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="d-flex w-100">
+            <div class="p-2 w-75 m-3 card" style="background-color: #eeeeee;">
+                <div class="card d-flex flex-row align-items-center mb-3"
+                     style="height: 120px; background-color: #E61D2B">
+                    <div class="p-2 ml-4 mr-auto text-left" style="color: white">
+                        <h4>{{ profile_user.get_full_name }}</h4>
+                        <p>{{ profile_user.employee.job_title }}</p>
+                    </div>
+                    <img class="p-2 rounded-circle" src="{{ profile_user.employee.image.url }}" alt=""
+                         style="width: 105px; height: 105px;">
+                </div>
+                {% if user_creation_form.non_field_errors or profile_creation_form.non_field_errors or profile_creation_form.errors or user_creation_form.errors %}
+                    {% for error in profile_update_form.non_field_errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>{{ error }}</strong>
+                        </div>
+                    {% endfor %}
+                    {% for error in profile_update_form.errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>{{ error }}</strong>
+                        </div>
+                    {% endfor %}
+                    {% for error in user_update_form.non_field_errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    {% for error in user_update_form.errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>{{ error }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="card p-3">
+                    <fieldset class="form-group">
+                        <ul class="nav nav-tabs" id="infoTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="bio-data-tab" data-toggle="tab" href="#bio-data"
+                                   role="tab" aria-controls="bio-data" aria-selected="true">USER INFO</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="infoTabContent">
+                            {#                            BIO DATA TAB#}
+                            <div class="tab-pane fade show active" id="bio-data" role="tabpanel"
+                                 aria-labelledby="bio-data-tab">
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ user_update_form.first_name|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ user_update_form.last_name|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ user_update_form.email|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.user_group|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-success" type="submit">SUBMIT</button>
+                        <a class="btn btn-danger" href="{% url 'payroll:index' %}">CANCEL</a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-2 w-25 m-3 card">
+                <fieldset class="form-group">
+                    <h5 class="border-bottom mb-4">User Account Settings</h5>
+                    {{ user_update_form.username|as_crispy_field }}
+                    <div class="border p-2 rounded">
+                        Employee status: <span class="text-success">{{ profile_user.employee.employment_status }}</span>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+{% endblock content %}

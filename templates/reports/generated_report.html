@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="content-section">
+        <div class="pdf landscape">
+            {% if report == 'NSSF' %}
+                {% include 'reports/generated_nssf_report.html' %}
+            {% elif report == 'LST' %}
+                {% include 'reports/generated_lst_report.html' %}
+            {% elif report == 'LEGER_EXPORT' %}
+                {% include 'reports/generated_leger_report.html' %}
+            {% elif report == 'SUMMARY' %}
+                {% include 'reports/generated_summary_report.html' %}
+            {% elif report == 'PAYE' %}
+                {% include 'reports/generated_paye_report.html' %}
+            {% elif report == 'Pay Slip' %}
+                {% include 'reports/generated_payslip_report.html' %}
+            {% elif report == 'BANK' %}
+                {% include 'reports/generated_bank_report.html' %}
+            {% elif report == 'CASH' %}
+                {% include 'reports/generated_cash_report.html' %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                    },
+                    'print'
+                ]
+            } );
+
+            $('#bank_table_id thead tr').clone(true).appendTo('#bank_table_id thead');
+            $('#bank_table_id thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                $('input', this).on('keyup change', function () {
+                    if (bankTable.column(i).search() !== this.value) {
+                        bankTable
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            });
+
+            let bankTable = $('#bank_table_id').DataTable({
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                    },
+                    'print'
+                ]
+            });
+
+            $('#cash_table_id thead tr').clone(true).appendTo('#cash_table_id thead');
+            $('#cash_table_id thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                $('input', this).on('keyup change', function () {
+                    if (cashTable.column(i).search() !== this.value) {
+                        cashTable
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            });
+
+            let cashTable = $('#cash_table_id').DataTable({
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                    },
+                    'print'
+                ]
+            });
+
+            $('#paye_table_id thead tr').clone(true).appendTo('#paye_table_id thead');
+            $('#paye_table_id thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                $('input', this).on('keyup change', function () {
+                    if (payeTable.column(i).search() !== this.value) {
+                        payeTable
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            });
+
+            let payeTable = $('#paye_table_id').DataTable({
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                    },
+                    'print'
+                ]
+            });
+
+            $('#leger_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                    },
+                    'print'
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    let i;
+                    let total = 0;
+                    for (i = 0; i < colCount; i++) {
+                        if (i === 10) {
+                            total = api
+                                .column(i)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b)) * 100) / 100;
+                                }, 0);
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i ===10) {
+                            $( api.column( i ).footer() ).html(
+                                total.toLocaleString()
+                            );
+                        }
+                    }
+                }
+            } );
+
+            let lst_table = $('#lst_table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                    },
+                    'print'
+                ],
+
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    let i;
+                    let pageTotal = [];
+                    for (i = 0; i < colCount; i++) {
+                        // Total over this page
+                        if (i > 2) {
+                            pageTotal[i] = api
+                                .column( i, { page: 'current'} )
+                                .data()
+                                .reduce( function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b))* 100) / 100;
+                                }, 0 );
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i > 2) {
+                            $( api.column( i ).footer() ).html(
+                                pageTotal[i].toLocaleString()
+                            );
+                        }
+                    }
+                }
+            } );
+
+            let id = $('.payroll_period').attr('id');
+            let period_month = document.getElementById(id).innerHTML;
+            console.log(period_month);
+
+            let summaryReportTable = $('#summary_id').DataTable( {
+                columnDefs: [ {
+                    searchable: false,
+                    orderable: false,
+                    targets: 0
+                } ],
+                order: [[ 1, 'asc' ]],
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'selectAll',
+                    'selectNone',
+                    {
+                        extend: 'copyHtml5',
+                        footer: true,
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        footer: true,
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'excel',
+                        footer: true,
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        customize: function (doc) {
+                            var objLayout = {};
+                            objLayout['hLineWidth'] = function(i) { return .8; };
+                            objLayout['vLineWidth'] = function(i) { return .5; };
+                            objLayout['hLineColor'] = function(i) { return '#aaa'; };
+                            objLayout['vLineColor'] = function(i) { return '#aaa'; };
+                            objLayout['paddingLeft'] = function(i) { return 8; };
+                            objLayout['paddingRight'] = function(i) { return 8; };
+                            doc.content[1].layout = objLayout;
+                        },
+                        orientation: 'landscape',
+                        pageSize: 'A1',
+                        exportOptions: {
+                            columns: ':visible',
+                            search: 'applied',
+                            order: 'applied'
+                        },
+                        footer: true,
+                        filename: 'summary_report',
+                        title: 'SAVE THE CHILDREN\n' +
+                            'PAYROLL FOR THE MONTH OF ' + period_month,
+                        messageBottom: '\n\n\n\n\nPrepared By..................................................................' +
+                            '\tChecked By........................................................' +
+                            '\tApproved By..................................................'
+                    },
+                    {
+                        extend: 'print',
+                        orientation: 'landscape',
+                        pageSize: 'A2',
+                        footer: true,
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    let i;
+                    let total = [];
+                    for (i = 0; i < colCount; i++) {
+                        if (i > 6 && i < colCount-1) {
+                            total[i] = api
+                                .column(i)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b)) * 100) / 100;
+                                }, 0);
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i > 6 && i < colCount-1) {
+                            $( api.column( i ).footer() ).html(
+                                total[i].toLocaleString()
+                            );
+                        }
+                    }
+                }
+            } );
+
+            summaryReportTable.on( 'order.dt search.dt', function () {
+                summaryReportTable.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+                    cell.innerHTML = i+1;
+                    summaryReportTable.cell(cell).invalidate('dom');
+                } );
+            } ).draw();
+
+            $('#summary_id tbody').on( 'click', 'tr', function () {
+                $(this).toggleClass('selected');
+            } );
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    let cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        let cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            let csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            $('#send_mail').click( function () {
+                console.log( summaryReportTable.rows('.selected').data().length +' Employee(s) selected for Payslip mailing' );
+                let payroll_period = $('.payroll_period').attr('id');
+                let length = summaryReportTable.rows('.selected').data().length;
+                alert(length + ' Staff will be emailed there payslips. Would you like to continue?');
+                let users = [];
+                let i;
+                for (i = 0; i < length; i++) {
+                    users.push(summaryReportTable.rows('.selected').data()[i][5])
+                }
+
+                emailUrl = '/reports/email/payslips/';
+                let users_data = {
+                    'users': users,
+                    'payroll_period': payroll_period
+                };
+                $.post(emailUrl, users_data, function (response) {
+                    if (response.status === 'success') {
+                        alert('Emails have been successfully sent')
+                    }
+                });
+            } );
+
+            let myTimerId = 0;
+
+            const alertFunction = () => {
+                let status_check_url = '/support_data/check_approval_status/' + $('.payroll_period').attr('id') + '/';
+                if (document.getElementById("approval_status").innerHTML === "YES") {
+                    console.log('I have finished');
+                    clearInterval(myTimerId);
+                    document.getElementById("approval_button").hidden = true;
+                } else {
+                    document.getElementById("approval_button").hidden = false;
+                    $.get(status_check_url, function (data) {
+                        console.log('I am still checking');
+                        console.log('the data has come: ' + data['status']);
+                        document.getElementById("approval_status").innerHTML = data['status'];
+                    });
+                }
+            };
+
+            if ( document.getElementById("approval_status").innerHTML === " " ||
+                document.getElementById("approval_status").innerHTML === "NO" ) {
+                myTimerId = setInterval( alertFunction, 3000 );
+            }
+
+
+        } );
+    </script>
+{% endblock scripts %}

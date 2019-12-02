@@ -1,0 +1,22 @@
+{% extends 'payroll/../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">Earning and Deduction</h3>
+        Name: <p style="font-weight: bold">{{ object.ed_type }}</p>
+        Category: <p style="font-weight: bold">{{ object.ed_category }}</p>
+        Description: <p style="font-weight: bold">{{ object.description }}</p>
+        Recurrent: <p style="font-weight: bold">{{ object.recurrent }}</p>
+        Taxable: <p style="font-weight: bold">{{ object.taxable }}</p>
+        Account code: <p style="font-weight: bold">{{ object.account_code }}</p>
+        Account name: <p style="font-weight: bold">{{ object.account_name }}</p>
+        Factor: <p style="font-weight: bold">{{ object.factor }}</p>
+        Agresso type: <p style="font-weight: bold">{{ object.agresso_type }}</p>
+        Debit/Credit sign: <p style="font-weight: bold">{{ object.debit_credit_sign }}</p>
+        Export: <p style="font-weight: bold">{{ object.export }}</p>
+        Summarize: <p style="font-weight: bold">{{ object.summarize }}</p>
+    </div>
+    <a class="btn btn-success" href="{% url 'payroll:ed-type-update' pk=object.id %}">EDIT</a>
+    <a class="btn btn-danger" href="{% url 'payroll:ed-type-list' %}">CANCEL</a>
+{% endblock content %}

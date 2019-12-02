@@ -1,0 +1,12 @@
+{% extends 'payroll/../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">Payroll center Earnings and Deductions</h3>
+        Payroll center: <p style="font-weight: bold">{{ object.payroll_center }}</p>
+        Earning and deduction type: <p style="font-weight: bold">{{ object.ed_type }}</p>
+    </div>
+    <a class="btn btn-success" href="{% url 'payroll:payroll-center-eds-update' pk=object.id %}">EDIT</a>
+    <a class="btn btn-danger" href="{% url 'payroll:payroll-center-eds-list' %}">CANCEL</a>
+{% endblock content %}

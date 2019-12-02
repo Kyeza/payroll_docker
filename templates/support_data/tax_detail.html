@@ -1,0 +1,15 @@
+{% extends 'payroll/../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">Tax Bracket</h3>
+        Country: <p style="font-weight: bold">{{ object.country }}</p>
+        Lower: <p style="font-weight: bold">{{ object.lower_boundary }}</p>
+        Upper: <p style="font-weight: bold">{{ object.upper_boundary }}</p>
+        Fixed: <p style="font-weight: bold">{{ object.fixed_amount }}</p>
+        Year: <p style="font-weight: bold">{{ object.year }}</p>
+    </div>
+    <a class="btn btn-success" href="{% url 'support_data:tax-bracket-update' pk=object.id %}">EDIT</a>
+    <a class="btn btn-danger" href="{% url 'support_data:tax-bracket-list' %}">CANCEL</a>
+{% endblock content %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+
+{% block css %}
+    a.card:hover {
+        text-decoration: none;
+    }
+{% endblock css %}
+{% block content %}
+    <div class="d-flex flex-column justify-content-center">
+        <div class="p-2">
+            <div class="card-deck">
+                <a class="card d-flex justify-content-start border-0" href="{% url 'users:new-employee' %}" style="background-color: transparent">
+                    <img class="card-img img-fluid w-25 align-self-center m-3" src="/media/new_user.png" alt="Card image">
+                    <div class="card-footer d-flex justify-content-center" style="background-color: #E64C47">
+                        <p class="card-title align-self-end text-white" style="font-size: 18px">New Employee</p>
+                    </div>
+                </a>
+                <a class="card d-flex justify-content-start border-0" href="{% url 'users:employee-approval' %}" style="background-color: transparent">
+                    <img class="card-img img-fluid w-25 align-self-center m-3" src="/media/approve_user.png" alt="Card image">
+                    <div class="card-footer d-flex justify-content-center" style="background-color: #E64C47">
+                        <p class="card-title align-self-end text-white" style="font-size: 18px">Approve Employee</p>
+                    </div>
+                </a>
+                <a class="card d-flex justify-content-start border-0" href="{% url 'users:edit-employee' %}" style="background-color: transparent">
+                    <img class="card-img img-fluid w-25 align-self-center m-3" src="/media/update_user.png" alt="Card image">
+                    <div class="card-footer d-flex justify-content-center" style="background-color: #E64C47">
+                        <p class="card-title align-self-end text-white" style="font-size: 18px">Update Employee</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="p-2">
+            <div class="card-deck">
+                <a class="card d-flex justify-content-start border-0" href="{% url 'reports:generate-reports' %}" style="background-color: transparent">
+                    <img class="card-img img-fluid w-25 align-self-center m-3" src="/media/reports.png" alt="Card image">
+                    <div class="card-footer d-flex justify-content-center" style="background-color: #E64C47">
+                        <p class="card-title align-self-end text-white" style="font-size: 18px">Genrate Reports</p>
+                    </div>
+                </a>
+                <a class="card d-flex justify-content-start border-0" href="{% url 'payroll:payroll-period-create' %}" style="background-color: transparent">
+                    <img class="card-img img-fluid w-25 align-self-center m-3" src="/media/open_period.png" alt="Card image">
+                    <div class="card-footer d-flex justify-content-center" style="background-color: #E64C47">
+                        <p class="card-title align-self-end text-white" style="font-size: 18px">New Payroll Period</p>
+                    </div>
+                </a>
+                <a class="card d-flex justify-content-start border-0" href="{% url 'payroll:close-payroll-period-list' %}" style="background-color: transparent">
+                    <img class="card-img img-fluid w-25 align-self-center m-3" src="/media/close_period.png" alt="Card image">
+                    <div class="card-footer d-flex justify-content-center" style="background-color: #E64C47">
+                        <p class="card-title align-self-end text-white" style="font-size: 18px">Close Payroll Period</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

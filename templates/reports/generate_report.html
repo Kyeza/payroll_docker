@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="d-flex">
+        <div class="p-4 content-section w-75 mr-4 ml-4">
+            <form method="POST" >
+                {% csrf_token %}
+                <fieldset>
+                    <legend class="border-bottom mb-4">Report Generator</legend>
+                    {{ form|crispy }}
+                </fieldset>
+                <div class="form-group">
+                    <button class="btn btn-success" type="submit">GENERATE</button>
+                    <a class="btn btn-danger" href="{% url 'reports:generate-reports' %}">CANCEL</a>
+                </div>
+            </form>
+        </div>
+        <div class="p-3 content-section w-25 mr-4">
+            <h4 class="mt-3">How to generate Reports</h4>
+            <p>Please  follow these steps to generate a report</p>
+            <ul>
+                <li>Select The Type of Report - e.g PAYE</li>
+                <li>Select Payroll Center - e.g Ugandan Nationals</li>
+                <li>Select the Payment Year - e.g 2017</li>
+                <li>Select the payment months that you want to reports to begin with - e.g January</li>
+                <li>Select the payment end payment month - e.g Jauary</li>
+            </ul>
+            <h6>NOTE</h6>
+            <p>
+                If you want to generate a report for one payment period, select the same Month for both
+                Start and End Months. The variables used in the above example will generate the
+                <em><strong>PAYE REPORT</strong></em> for <em><strong>Ugandan National's</strong></em>
+                payroll center for the of <em><strong>January 2017</strong></em>.
+            </p>
+        </div>
+    </div>
+{% endblock content %}

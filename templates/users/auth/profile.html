@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load users_extras %}
+
+{% block content %}
+    <form id="registrationForm" class="w-100" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {{ user_update_form.errors }}
+        {{ profile_update_form.errors }}
+
+        <div class="d-flex w-100">
+            <div class="p-2 w-75 m-3 card" style="background-color: #eeeeee;">
+                <div class="card d-flex flex-row align-items-center mb-3"
+                     style="height: 120px; background-color: #E61D2B">
+                    <div class="p-2 ml-4 mr-auto text-left" style="color: white">
+                        <h4>{{ profile_user.get_full_name }}</h4>
+                        <p>{{ profile_user.employee.job_title }}</p>
+                    </div>
+                    <img class="p-2 rounded-circle" src="{{ profile_user.employee.image.url }}" alt=""
+                         style="width: 105px; height: 105px;">
+                </div>
+                {% if user_update_form.non_field_errors or profile_update_form.non_field_errors or profile_update_form.errors or user_update_form.errors %}
+                    {% for error in profile_update_form.non_field_errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>{{ error }}</strong>
+                        </div>
+                    {% endfor %}
+                    {% for error in profile_update_form.errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>{{ error }}</strong>
+                        </div>
+                    {% endfor %}
+                    {% for error in user_update_form.non_field_errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    {% for error in user_update_form.errors %}
+                        <div class="alert alert-info alert-dismissible fade show">
+                            <button type="button" class="close" data-dismiss="alert">&times;</button>
+                            <strong>{{ error }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="card p-3">
+                    <fieldset class="form-group">
+                        <ul class="nav nav-tabs" id="infoTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="bio-data-tab" data-toggle="tab" href="#bio-data"
+                                   role="tab" aria-controls="bio-data" aria-selected="true">BIO DATA</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="work-info-tab" data-toggle="tab" href="#work-info"
+                                   role="tab" aria-controls="work-info" aria-selected="false">WORK INFO</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="payroll-info-tab" data-toggle="tab" href="#payroll-info"
+                                   role="tab" aria-controls="payroll-info" aria-selected="false">PAYROLL INFO</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="emergency-contact-tab" data-toggle="tab"
+                                   href="#emergency-contact"
+                                   role="tab" aria-controls="emergency-contact" aria-selected="false">EMERGENCY
+                                    CONTACTS</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="next-kin-tab" data-toggle="tab" href="#next-kin"
+                                   role="tab" aria-controls="next-kin" aria-selected="false">NEXT OF KIN</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="codes-tab" data-toggle="tab" href="#codes"
+                                   role="tab" aria-controls="codes" aria-selected="false">DOCUMENTS</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="infoTabContent">
+                            {#                            BIO DATA TAB#}
+                            <div class="tab-pane fade show active" id="bio-data" role="tabpanel"
+                                 aria-labelledby="bio-data-tab">
+                                {{ profile_update_form.image|as_crispy_field }}
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ user_update_form.first_name|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ user_update_form.middle_name|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ user_update_form.last_name|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.date_of_birth|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sex|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.marital_status|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.mobile_number|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ user_update_form.email|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.id_number|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.passport_number|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.nationality|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.home_address|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.residential_address|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.district|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {#                            WORK INFO TAB#}
+                            <div class="tab-pane fade" id="work-info" role="tabpanel" aria-labelledby="work-info-tab">
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.duty_country|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.duty_station|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.payment_location|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.department|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.job_title|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.line_manager|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.appointment_date|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.contract_type|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.contract_expiry|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.category|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.grade|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.basic_salary|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.currency|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.assigned_locations|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.tin_number|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {#                            PAYROLL INFO TAB#}
+                            <div class="tab-pane fade" id="payroll-info" role="tabpanel"
+                                 aria-labelledby="payroll-info-tab">
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.social_security|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.social_security_number|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.nhif_number|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.agresso_number|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.cost_centre|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.payment_type|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.payroll_center|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-3 mb-0">
+                                        {{ profile_update_form.medical_insurance_category|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-3 mb-0">
+                                        {{ profile_update_form.medical_insurance_number|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-2 mb-0">
+                                        {{ profile_update_form.transferable|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.bank_1|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.first_account_number|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-2 mb-0">
+                                        {{ profile_update_form.first_bank_percentage|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.bank_2|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-4 mb-0">
+                                        {{ profile_update_form.second_account_number|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-2 mb-0">
+                                        {{ profile_update_form.second_bank_percentage|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {#                            EMERGENCY TAB#}
+                            <div class="tab-pane fade" id="emergency-contact" role="tabpanel"
+                                 aria-labelledby="emergency-contact-tab">
+                                <div class="form-row">
+                                    <h5 class="mb-0 mt-2">Contact 1</h5>
+                                    <hr class="w-100 mt-0 col-md-12">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_name_1|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_relationship_1|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_address_1|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_phone_number_1|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <h5 class="mb-0">Contact 2</h5>
+                                    <hr class="w-100 mt-0 col-md-12">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_name_2|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_relationship_2|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_address_2|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_phone_number_2|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <h5 class="mb-0">Contact 3</h5>
+                                    <hr class="w-100 mt-0 col-md-12">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_name_3|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_relationship_3|as_crispy_field }}
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_address_3|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.sos_phone_number_3|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {#                            NEXT OF KIN TAB#}
+                            <div class="tab-pane fade" id="next-kin" role="tabpanel" aria-labelledby="next-kin-tab">
+                                {{ profile_update_form.kin_full_name|as_crispy_field }}
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.kin_relationship|as_crispy_field }}
+                                    </div>
+                                </div>
+                                {{ profile_update_form.kin_address|as_crispy_field }}
+                                {{ profile_update_form.kin_phone_number|as_crispy_field }}
+                                <div class="form-row">
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.kin_nationality|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-6 mb-0">
+                                        {{ profile_update_form.kin_passport_number|as_crispy_field }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {#                            DOCS TABS#}
+                            <div class="tab-pane fade" id="codes" role="tabpanel"
+                                 aria-labelledby="codes-tab">
+                                <div class="form-row">
+                                    <div class="form-group col-md-12 mb-0">
+                                        {{ profile_update_form.documents|as_crispy_field }}
+                                    </div>
+                                    <div class="form-group col-md-12 mb-0">
+                                        <h5 class="mb-0">Uploaded documents</h5>
+                                        <hr class="w-100 mt-0 col-md-12">
+                                        <ul style="list-style-type: none">
+                                            {% if documents_list %}
+                                                {% for document in documents_list %}
+                                                    <li>
+                                                        <a target="_blank"
+                                                           href="{{ request.scheme }}://{{ request.get_host }}/media/{{ folder_name }}/{{ document }}">
+                                                            {{ document }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            {% else %}
+                                                <p class="lead">No documents uploaded yet</p>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-success" type="submit">SUBMIT</button>
+                        <a class="btn btn-danger" href="{% url 'payroll:index' %}">CANCEL</a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-2 w-25 m-3 card">
+                <fieldset class="form-group">
+                    <h5 class="border-bottom mb-4">User Account Settings</h5>
+                    {{ user_update_form.username|as_crispy_field }}
+                    {{ profile_update_form.user_group|as_crispy_field }}
+                    <div class="border p-2 rounded">
+                        Employee status: <span class="text-success">{{ profile_user.employee.employment_status }}</span>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </form>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(':radio[name="social_security"]').change(function () {
+            let value = $(this).filter(':checked').val();
+            console.log(value);
+            if (value === 'YES') {
+                $(':input[name="social_security_number"]').attr('disabled', false)
+            } else {
+                $(':input[name="social_security_number"]').attr('disabled', true)
+            }
+        });
+
+        b1 = document.getElementById("id_first_bank_percentage");
+        b2 = document.getElementById("id_second_bank_percentage");
+
+        b1.addEventListener("keyup", function () {
+            if (b1.value <= 100) {
+                b2.value = 100 - b1.value
+            }
+        });
+
+        b2.addEventListener("keyup", function () {
+            if (b2.value <= 100) {
+                b1.value = 100 - b2.value
+            }
+        });
+
+        $(function () {
+            $("#id_date_of_birth").datetimepicker({
+                format: 'Y-m-d',
+            });
+            $("#id_appointment_date").datetimepicker({
+                format: 'Y-m-d',
+            });
+            $("#id_contract_expiry").datetimepicker({
+                format: 'Y-m-d',
+            });
+        });
+    </script>
+{% endblock scripts %}

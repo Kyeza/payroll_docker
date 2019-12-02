@@ -1,0 +1,26 @@
+{% extends 'payroll/../base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section d-flex justify-content-center">
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- Modal Header -->
+            <div class="modal-header d-flex justify-content-center">
+                <h4 class="modal-title">Confirm to delete organization</h4>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body d-flex justify-content-center">
+                <p>Are you sure you want to delete "<strong>{{ object.name }}</strong>"?</p>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer d-flex justify-content-center">
+                <button type="submit" class="btn btn-danger" data-dismiss="modal">Confirm</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

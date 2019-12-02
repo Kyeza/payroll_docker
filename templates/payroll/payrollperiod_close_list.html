@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="modal fade" id="modalCloseConfirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"  style="color: red; font-size: 14px"
+                        id="exampleModalLabel">Are you sure you want to close this Payroll Period?</h5>
+                </div>
+                <div class="modal-body">
+                    <h5 id="payroll_period"></h5>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a id="period_path" class="btn btn-primary" href="">Decline</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="content-section">
+        <h4 class="border-bottom mb-4">{{ title }}</h4>
+        <div class="table-responsive-md">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">{{ title }}</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Payroll key</th>
+                    <th>Payroll center</th>
+                    <th>Month</th>
+                    <th>Year</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for payroll_period in object_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'payroll:payroll-period-update' payroll_period.id %}">{{ payroll_period.payroll_key }}</a>
+                        </td>
+                        <td>{{ payroll_period.payroll_center }}</td>
+                        <td>{{ payroll_period.month }}</td>
+                        <td>{{ payroll_period.year }}</td>
+                        <td>{{ payroll_period.status }}</td>
+                        <td>
+                            {% if payroll_period.status == 'OPEN' %}
+                                <form name="form" action="#" id="form_period_{{ payroll_period.id }}" method="POST">
+                                    {% csrf_token %}
+                                    <!--suppress HtmlFormInputWithoutLabel -->
+                                    <input name="id" id="period_id_submit" type="text" value="{{ payroll_period.id }}"
+                                           hidden="hidden"/>
+                                    <button id="{{ payroll_period.id }}" type="button"
+                                            class="btn btn-sm btn-warning close_period">CLOSE</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(function () {
+            $('.close_period').on('click', function () {
+                let id = $(this).attr('id');
+                let periodUrl = '/payroll/payroll_period/close/'+id;
+
+                $.ajax({
+                    url: periodUrl,
+                    type: 'POST',
+                    data: $('#form_period_'+id).serialize(),
+                    success: function (response) {
+                        console.log(response);
+                        $('.close_period').trigger("reset");
+                        openModal(response);
+                    },
+                    error: function () {
+                        console.log('Something went wrong here')
+                    }
+                })
+            })
+        });
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+        function openModal(data) {
+            $('#payroll_period').text(data.payroll_center + ' PAYROLL PERIOD FOR ' + data.month);
+            $('#period_path').attr('href', '/payroll/payroll_period/close/'+data.id);
+            $('#modalCloseConfirm').modal('show');
+        }
+    </script>
+{% endblock scripts %}

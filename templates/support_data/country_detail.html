@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">Contry of Origin</h3>
+        Name: <p style="font-weight: bold">{{ object.country_name}}</p>
+        Code: <p style="font-weight: bold">{{ object.country_code }}</p>
+        <a class="btn btn-success" href="{% url 'support_data:country-list' %}">
+            BACK
+        </a>
+    </div>
+{% endblock content %}

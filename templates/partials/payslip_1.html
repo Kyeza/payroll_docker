@@ -1,0 +1,206 @@
+{% load static %}
+{% load users_extras %}
+{% load reports_extras %}
+{% load humanize %}
+
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Pay Slip</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'reports/payslip.css' %}">
+</head>
+<body>
+<div class="content">
+    <div class="logo">
+        <img src="/media/payslip_logo.png" alt="logo">
+        <p class="logo-brand">in Sudan</p>
+    </div>
+    <h1 class="title">Pay Slip</h1>
+    <table>
+        <tbody>
+        {% for staff in data|get_distinct_employee_set %}
+            <tr>
+                <th>Pay Advice for:</th>
+                <td colspan="2">{{ period.month }} - {{ period.year }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Name:</th>
+                <td colspan="2">{{ staff.user.get_full_name }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Department:</th>
+                <td colspan="2">{{ staff.department }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Branch:</th>
+                <td colspan="2">{{ staff.duty_station }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Job Title</th>
+                <td colspan="2">{{ staff.job_title }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Project:</th>
+                <td colspan="2">
+                    {% if staff.employeeproject_set.exists %}
+                        {% with staff.employeeproject_set.first as project %}
+                            {{ project.project_code.project_code }}
+                        {% endwith %}
+                    {% endif %}
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Location:</th>
+                <td colspan="2">{{ staff.duty_station }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Cost Centre:</th>
+                <td colspan="2">{{ staff.cost_centre }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Grant:</th>
+                <td colspan="2"></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Donor:</th>
+                <td colspan="2">{{ staff.id_number }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Bank Name:</th>
+                <td colspan="2">{{ staff.bank_1 }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Bank A/C:</th>
+                <td colspan="2">{{ staff.first_account_number }}</td>
+                <td></td>
+            </tr>
+            <tr>
+                <th>Currency:</th>
+                <td colspan="2">{{ staff.currency }}</td>
+                <td></td>
+            </tr>
+            <tr class="horizontal-line">
+                <th class="sub-title">Earning Details:</th>
+                <td colspan="2"></td>
+                <td></td>
+            </tr>
+            {% for processor in data|category:1|payslip_data:staff %}
+                <tr>
+                    {% for k, value in processor.items %}
+                        {% if k == 'earning_and_deductions_type__ed_type' %}
+                            <th>{{ value }}</th>
+                        {% else %}
+                            <td class="amount">
+                                {{ value|intcomma }}
+                            </td>
+                        {% endif %}
+                        {% if k == 'earning_and_deductions_type__ed_type' %}
+                            {% if value|contains_time %}
+                                <th>0 Hrs</th>
+                            {% else %}
+                                <th></th>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            {% with staff|report:period as report %}
+                <tr class="horizontal-line">
+                    <th>Total Earnings</th>
+                    <td colspan="2" class="total">{{ report.gross_earning|intcomma }}</td>
+                    <td></td>
+                </tr>
+            {% endwith %}
+            <tr class="horizontal-line">
+                <th class="sub-title">Deduction Details:</th>
+                <td colspan="2"></td>
+                <td></td>
+            </tr>
+            {% for processor in data|category:2|payslip_data:staff %}
+                <tr>
+                    {% for k, value in processor.items %}
+                        {% if k == 'earning_and_deductions_type__ed_type' %}
+                            <th>{{ value }}</th>
+                        {% else %}
+                            <td class="amount">
+                                {{ value|intcomma }}
+                            </td>
+                        {% endif %}
+                        {% if k == 'earning_and_deductions_type__ed_type' %}
+                            {% if value|contains_time %}
+                                <th>0 Hrs</th>
+                            {% else %}
+                                <th></th>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            {% for processor in data|category:3|payslip_data:staff %}
+                <tr>
+                    {% for k, value in processor.items %}
+                        {% if k == 'earning_and_deductions_type__ed_type' %}
+                            <th>{{ value }}</th>
+                        {% else %}
+                            <td class="amount">
+                                {{ value|intcomma }}
+                            </td>
+                        {% endif %}
+                        {% if k == 'earning_and_deductions_type__ed_type' %}
+                            {% if value|contains_time %}
+                                <th>0 Hrs</th>
+                            {% else %}
+                                <th></th>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            {% with staff|report:period as report %}
+                <tr class="horizontal-line">
+                    <th>Total Deductions</th>
+                    <td colspan="2" class="total">{{ report.total_deductions|intcomma }}</td>
+                    <td></td>
+                </tr>
+            {% endwith %}
+            <tr>
+                <th></th>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <th></th>
+                <td></td>
+                <td></td>
+            </tr>
+            {% with staff|report:period as report %}
+                <tr class="horizontal-line-1">
+                    <th>Net Pay</th>
+                    <td colspan="2" class="total">{{ report.net_pay|intcomma }}</td>
+                    <td></td>
+                </tr>
+            {% endwith %}
+            <tr class="horizontal-line-1">
+                <th></th>
+                <td colspan="2"></td>
+                <td></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p class="footer">Perpared by:.....................................................................................</p>
+    <p class="footer">Checked by:......................................................................................</p>
+</div>
+</body>
+</html>

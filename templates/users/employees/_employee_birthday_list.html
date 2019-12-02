@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <h4 class="border-bottom mb-4">Employees' Birthdays</h4>
+        <div class="d-flex flex-row-reverse">
+            <div class="p-2">
+                <a id="send_mail" class="btn btn-success btn-md" href="#">
+                    SEND MAIL
+                </a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Employees' Birthdays</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Full name</th>
+                    <th>Birthday</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for employee in object_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'users:user-detail' pk=employee.pk %}">
+                                {{ employee.user.get_full_name }}
+                            </a>
+                        </td>
+                        <td>{{ employee.date_of_birth|date:'d M, Y' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}

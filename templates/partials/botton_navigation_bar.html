@@ -1,0 +1,177 @@
+<nav id="bottom-nav" class="navbar navbar-expand-lg navbar-light bg-light py-2 shadow">
+    <a class="navbar-brand ml-10" href="{% url 'payroll:index' %}">
+        <img src="/media/logo.png" class="img-fluid" style="width: 2em; height: 2em">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item dropdown action">
+                <a class="nav-link dropdown-header" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Staff <span class="sr-only">(current)</span>
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'users:new-employee' %}">Add New Employee</a>
+                    <a class="dropdown-item" href="{% url 'users:edit-employee' %}">Edit Employee</a>
+                    <a class="dropdown-item" href="{% url 'users:rejected-employee-list' %}">Rejected New Employee</a>
+                    <a class="dropdown-item" href="{% url 'users:separated-employee' %}">Separated Employees</a>
+                    <a class="dropdown-item" href="{% url 'users:terminate-employee-list' %}">Terminate Employee</a>
+                    <a class="dropdown-item" href="{% url 'users:employee-assign-project' %}">Assign Employee Projects</a>
+                    <a class="dropdown-item" href="{% url 'users:employee-project-list' %}">Employee Projects</a>
+                    <a class="dropdown-item" href="{% url 'users:employee-birthday-list' %}">Employee Birthdays</a>
+                    <a class="dropdown-item" href="{% url 'users:change_employee_user_group' %}">Change User Group</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown action">
+                <a class="nav-link dropdown-header" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Movements
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'users:employee-approval' %}">Staff Bio Data Approval</a>
+                    <a class="dropdown-item" href="{% url 'users:employee_movements' %}">Staff Bio Data Movements</a>
+                    <a class="dropdown-item" href="{% url 'users:employee_movements_enums' %}">Salary/Earnings Movements</a>
+                    <a class="dropdown-item" href="{% url 'users:employee_movements_changelist' %}">Staff Movements Approval</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-header" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Payroll
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'payroll:payroll-period-create' %}">
+                        <small>Add Payroll Period</small>
+                    </a>
+                    <a class="dropdown-item" href="{% url 'payroll:close-payroll-period-list' %}">
+                        <small>Close Payroll Period</small>
+                    </a>
+                    <a class="dropdown-item" href="{% url 'payroll:open-payroll-period-list' %}">
+                        <small>Process Payroll</small>
+                    </a>
+                    <a class="dropdown-item" href="{% url 'payroll:payroll-period-list' %}">
+                        <small>Edit Payroll</small>
+                    </a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-header" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Reports
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'reports:generate-reports' %}">
+                        <small>Payroll Reports</small>
+                    </a>
+                    <a class="dropdown-item" href="{% url 'reports:generate_reconciliation_report' %}">
+                        <small>Reconciliation Report</small>
+                    </a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-header" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Support Data
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <div class="dropdown-multicol">
+                        <div style="border-left: none">
+                            <a class="dropdown-item" href="{% url 'support_data:country-list' %}">Country of Origin</a>
+                            <a class="dropdown-item" href="{% url 'support_data:nationality-list' %}">Nationality</a>
+                            <a class="dropdown-item" href="{% url 'support_data:duty-station-list' %}">Duty Station</a>
+                            <a class="dropdown-item" href="{% url 'support_data:department-list' %}">Departments</a>
+                            <a class="dropdown-item" href="{% url 'support_data:job-title-list' %}">Job Titles</a>
+                            <a class="dropdown-item" href="{% url 'support_data:contract-type-list' %}">Contract Types</a>
+                            <a class="dropdown-item" href="{% url 'users:category_create' %}">Add Staff Category</a>
+                            <a class="dropdown-item" href="{% url 'users:category_list' %}">Edit Staff Categories</a>
+                        </div>
+                        <div class="wider">
+                            <a class="dropdown-item" href="{% url 'support_data:organization-create' %}">
+                                Add Organization
+                            </a>
+                            <a class="dropdown-item" href="{% url 'support_data:organization-list' %}">Edit
+                                Organization</a>
+                            <a class="dropdown-item" href="{% url 'payroll:payroll-center-create' %}">Add Payroll
+                                Center</a>
+                            <a class="dropdown-item" href="{% url 'payroll:payroll-center-list' %}">Edit Payroll
+                                Center</a>
+                            <a class="dropdown-item" href="{% url 'payroll:ed-type-create' %}">
+                                Add Earning and Deductions
+                            </a>
+                            <a class="dropdown-item" href="{% url 'payroll:ed-type-list' %}">
+                                Edit Earning and Deductions
+                            </a>
+                            <a class="dropdown-item" href="{% url 'payroll:payroll-center-eds-create' %}">
+                                Add Payroll Center Earning and Deductions
+                            </a>
+                            <a class="dropdown-item" href="{% url 'payroll:payroll-center-eds-list' %}">
+                                Edit Payroll Center Earning and Deductions
+                            </a>
+                        </div>
+                        <div>
+                            <a class="dropdown-item" href="{% url 'payroll:bank-list' %}">Bank</a>
+                            <a class="dropdown-item" href="{% url 'payroll:currency-list' %}">Currencies</a>
+                            <a class="dropdown-item" href="{% url 'support_data:grade-list' %}">Grade</a>
+                            <a class="dropdown-item" href="{% url 'payroll:payroll-center-staff-list' %}">
+                                Payroll Center Staff</a>
+
+                            <a class="dropdown-item" href="{% url 'support_data:reason-list' %}">
+                                Separation Reason
+                            </a>
+                        </div>
+                        <div>
+                            {#                            TAX SETTINGS #}
+                            <a class="dropdown-item dropdown-header"
+                               style="font-weight: bolder; color: rgba(93,97,99,0.83);">
+                                Tax Settings
+                            </a>
+                            <a class="dropdown-item" href="{% url 'support_data:tax-bracket-create' %}">
+                                Add Tax Bracket
+                            </a>
+                            <a class="dropdown-item" href="{% url 'support_data:tax-bracket-list' %}">
+                                Edit Tax Bracket
+                            </a>
+                            <a class="dropdown-item" href="{% url 'payroll:lst-list' %}">
+                                Edit LST Rates
+                            </a>
+                        </div>
+                        <div>
+                            <a class="dropdown-item dropdown-header"
+                               style="font-weight: bolder; color: rgba(93,97,99,0.83);">
+                                Email Messages
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                Birthday Messages
+                            </a>
+
+                            {#                            EMPLOYEE PROJECTS#}
+                            <a class="dropdown-item dropdown-header"
+                               style="font-weight: bolder; color: rgba(93,97,99,0.83);">
+                                Staff Projects
+                            </a>
+                            <a class="dropdown-item" href="{% url 'users:cost-centre-list' %}">
+                                Cost Centres
+                            </a>
+                            <a class="dropdown-item" href="{% url 'users:project-list' %}">
+                                Projects
+                            </a>
+                            <a class="dropdown-item" href="{% url 'users:sof-list' %}">
+                                SOFs
+                            </a>
+                            <a class="dropdown-item" href="{% url 'users:dea-list' %}">
+                                DEAs
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link dropdown-header" href="#">Submit Feedback</a>
+            </li>
+        </ul>
+    </div>
+</nav>

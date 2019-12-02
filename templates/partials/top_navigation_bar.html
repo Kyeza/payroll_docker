@@ -1,0 +1,24 @@
+{% load users_extras %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-red py-1">
+    <a class="navbar-brand mr-auto" href="{% url 'payroll:index' %}">
+        XPay Payroll System V1.3
+    </a>
+
+    <!-- Profile image on navbar -->
+    <div class="btn-group">
+        {% if user|user_profile %}
+            <img class="rounded-circle nav-img" src="{{ user.employee.image.url }}" alt="" data-toggle="dropdown" aria-haspopup="true"
+             aria-expanded="false">
+        {% else %}
+            <img class="rounded-circle nav-img" src="/media/default.png" alt="" data-toggle="dropdown" aria-haspopup="true"
+             aria-expanded="false">
+        {% endif %}
+        <div class="dropdown-menu dropdown-menu-right">
+            <h1 class="dropdown-header">Welcome</h1>
+            <a class="dropdown-item" href="{% url 'users:user-profile' %}">My Profile</a>
+            <a class="dropdown-item" href="{% url 'reset_logout' %}">Reset Password</a>
+            <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+</nav>

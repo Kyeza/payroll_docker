@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <h3 class="border-bottom mb-4">SOFs</h3>
+        <div class="d-flex flex-row-reverse">
+            <div class="p-2">
+                <a class="btn btn-success btn-md" href="{% url 'users:sof-create' %}">Create</a>
+            </div>
+        </div>
+        <div class="table-responsive-md">
+            <table class="table table-sm table-hover">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Project code</th>
+                    <th>SOF code</th>
+                    <th>SOF name</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for sof in object_list %}
+                    <tr>
+                        <td>{{ sof.project_code.project_code }}</td>
+                        <td>{{ sof.sof_code }}</td>
+                        <td>{{ sof.sof_name }}</td>
+                        <td class="text-primary">
+                            <a class="btn btn-primary btn-sm"
+                               href="{% url 'users:sof-detail' pk=sof.pk %}">View</a>
+                            <a class="btn btn-warning btn-sm"
+                               href="{% url 'users:sof-update' pk=sof.pk %}">Edit</a>
+                            <a class="btn btn-danger btn-sm"
+                               href="#">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <p class="text-center">No SOFs yet</p>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex flex-row justify-content-end">
+            {% if is_paginated %}
+
+                {% if page_obj.has_previous %}
+                    <a class="btn btn-outline-primary mb-4" href="?page=1">First</a>
+                    <a class="btn btn-outline-primary mb-4"
+                       href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <a class="btn btn-primary mb-4" href="?page={{ num }}">{{ num }}</a>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a class="btn btn-outline-primary mb-4" href="?page={{ num }}">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a class="btn btn-outline-primary mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a class="btn btn-outline-primary mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                {% endif %}
+
+            {% endif %}
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,93 @@
+{% extends "admin/base.html" %}
+
+{% block extrastyle %}
+    <style>
+        a:link, a:visited {
+            color: #444444;
+            text-decoration: none;
+        }
+
+        div.selector-chosen > h2 {
+            background: #E64C47;
+            color: #fff;
+        }
+
+        .button.default, input[type=submit].default, .submit-row input.default {
+            float: right;
+            border: none;
+            font-weight: 400;
+            background: #E61D2B;
+        }
+
+        .button:active, input[type=submit]:active, input[type=button]:active,
+        .button:focus, input[type=submit]:focus, input[type=button]:focus,
+        .button:hover, input[type=submit]:hover, input[type=button]:hover {
+            background: #E67F83;
+        }
+
+        .button.default:active, input[type=submit].default:active,
+        .button.default:focus, input[type=submit].default:focus,
+        .button.default:hover, input[type=submit].default:hover {
+            background: #BF2235;
+        }
+
+
+        .object-tools a:focus, .object-tools a:hover {
+            background-color: #E61D2B;
+        }
+
+        #header {
+            width: auto;
+            height: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 40px;
+            background: #E61D2B;
+            color: #ffc;
+            overflow: hidden;
+        }
+
+        .button, input[type=submit], input[type=button], .submit-row input, a.button {
+            background: #E64C47;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .module h2, .module caption, .inline-group h2 {
+            margin: 0;
+            padding: 8px;
+            font-weight: 400;
+            font-size: 13px;
+            text-align: left;
+            background: #E64C47;
+            color: #fff;
+        }
+
+        div.breadcrumbs {
+            background: #E64C47;
+            padding: 10px 40px;
+            border: none;
+            font-size: 14px;
+            color: #c4dce8;
+            text-align: left;
+        }
+
+        #user-tools a:focus, #user-tools a:hover {
+            text-decoration: none;
+            border-bottom-color: #E64C47;
+            color: #E64C47;
+        }
+    </style>
+{% endblock extrastyle %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

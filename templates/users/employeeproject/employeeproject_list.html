@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <h4 class="border-bottom mb-4">Employee Projects</h4>
+        <div class="table-responsive">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Projects</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Full name</th>
+                    <th>Cost Centre</th>
+                    <th>Project Code</th>
+                    <th>SOF Code</th>
+                    <th>DEA Code</th>
+                    <th>Contribution</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for project in object_list %}
+                    <tr>
+                        <td>{{ project.employee.user.get_full_name }}</td>
+                        <td>{{ project.cost_center }}</td>
+                        <td>{{ project.project_code }}</td>
+                        <td>{{ project.sof_code }}</td>
+                        <td>{{ project.dea_code }}</td>
+                        <td>{{ project.contribution_percentage }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}

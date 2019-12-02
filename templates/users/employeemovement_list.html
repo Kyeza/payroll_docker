@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="content-section">
+        <h3 class="border-bottom mb-4">Employee Movements To Approve</h3>
+        <div class="table-responsive-md">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Employee Movements</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Employee</th>
+                    <th>Parameter</th>
+                    <th>Earning</th>
+                    <th>Change From</th>
+                    <th>Change To</th>
+                    <th>Remarks</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for movement in object_list %}
+                    <tr>
+                        <td>{{ movement.employee.user.get_full_name }}</td>
+                        <td>{{ movement.parameter }}</td>
+                        {% if movement.earnings %}
+                            <td>{{ movement.earnings }}</td>
+                        {% else %}
+                            <td>N/A</td>
+                        {% endif %}
+                        <td>{{ movement.move_from }}</td>
+                        <td>{{ movement.move_to }}</td>
+                        <td>{{ movement.remarks}}</td>
+                        <td>{{ movement.date }}</td>
+                        <td class="d-flex justify-content-between">
+                            <a class="btn btn-success btn-sm" href="{% url 'users:approve_employee_movement' movement_id=movement.pk %}">Approve</a>
+                            <a class="btn btn-danger" href="{% url 'users:decline_employee_movement' movement_id=movement.pk %}">Decline</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}

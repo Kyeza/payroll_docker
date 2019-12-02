@@ -1,0 +1,47 @@
+{% load users_extras %}
+{% load reports_extras %}
+{% load humanize %}
+
+{% for period, data in results.items %}
+    <h4 class="border-top pt-4 mb-2 text-center">
+        {{ period.payroll_center }}
+    </h4>
+    <h5 class="border-bottom mb-5 text-center">
+        {{ report }} REPORT FOR PERIOD
+        <span style="color: #2196F3">{{ period.month }}, {{ period.year }}</span>
+    </h5>
+    <div class="table-responsive">
+        <table id="cash_table_id" class="table table-sm table-striped table-bordered w-100">
+            <caption class="border-bottom mb-5">
+                {{ report }} REPORT FOR PERIOD
+                <span style="color: #2196F3">{{ period.month }}, {{ period.year }}</span>
+            </caption>
+            <thead class="thead-dark">
+            <tr>
+                <th>Agresso ID</th>
+                <th>Name</th>
+                <th>Job Title</th>
+                <th>Payment Location</th>
+                <th>Payment Type</th>
+                <th>Net Pay</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% with data|get_distinct_employee_set as employees %}
+                {% for staff in employees %}
+                    <tr>
+                        <td>{{ staff.id_number }}</td>
+                        <td>{{ staff.user.get_full_name }}</td>
+                        <td>{{ staff.job_title }}</td>
+                        <td>{{ staff.payment_location }}</td>
+                        <td>{{ staff.payment_type }}</td>
+                        {% with staff|report:period as report %}
+                            <td>{{ report.net_pay|intcomma }}</td>
+                        {% endwith %}
+                    </tr>
+                {% endfor %}
+            {% endwith %}
+            </tbody>
+        </table>
+    </div>
+{% endfor %}

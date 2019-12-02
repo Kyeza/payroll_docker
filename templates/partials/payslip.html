@@ -1,0 +1,158 @@
+{% load users_extras %}
+{% load reports_extras %}
+{% load humanize %}
+
+<div style="width: 450px; padding: 0 auto;">
+    <div style=" width: 100%; margin: 0 auto; padding: 2px auto;">
+        <div style="width: 200px; margin: 0px auto;">
+            <img src="/media/full_logo.png" style="width: 100%; margin: auto;" alt="logo.png">
+        </div>
+    </div>
+    <div class="table-responsive" style="margin-top: 0;">
+        <table class="table table-sm" style="font-size: 12px">
+            <thead style="border-bottom: 5px solid #8d8d8d;">
+            <tr>
+                <th colspan="2">
+                    <h4 style="text-align: center; font-size: 25px;">Payslip</h4>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for staff in data|get_distinct_employee_set %}
+                <tr>
+                    <th scope="row">Pay Period:</th>
+                    <td>{{ period.month }} - {{ period.year }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Agresso/Staff ID:</th>
+                    <td>{{ staff.id_number }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Name:</th>
+                    <td>{{ staff.user.get_full_name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Department:</th>
+                    <td>{{ staff.department }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Duty Station:</th>
+                    <td>{{ staff.duty_station }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Job Title:</th>
+                    <td>{{ staff.job_title }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Grade/Step:</th>
+                    <td>{{ staff.grade }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Bank Name:</th>
+                    <td>{{ staff.bank_1 }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Account number:</th>
+                    <td>{{ staff.first_account_number }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Currency:</th>
+                    <td>{{ staff.currency }}</td>
+                </tr>
+
+                <tr style="border-top: 3px solid #8d8d8d;">
+                    <th scope="row" colspan="2">
+                        <h3><strong>Earnings Details</strong></h3>
+                    </th>
+                </tr>
+                {% for processor in data|payslip_data:staff|category:1 %}
+                    <tr>
+                        {% for k, value in processor.items %}
+                            {% if k == 'earning_and_deductions_type__ed_type' %}
+                                <th>{{ value }}</th>
+                            {% else %}
+                                <td class="d-flex justify-content-end borderless">
+                                    {{ value|intcomma }}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+
+                    </tr>
+                {% endfor %}
+                {% with staff|report:period as report %}
+                    <tr style="border-top: 3px solid #8d8d8d; border-bottom: 3px solid #8d8d8d">
+                        <th scope="row"><h5>Total Earnings</h5></th>
+                        <td class="d-flex justify-content-end borderless">
+                            {{ report.gross_earning|intcomma }}
+                        </td>
+                    </tr>
+                {% endwith %}
+                <tr style="border-top: 3px solid #8d8d8d;">
+                    <th scope="row" colspan="2">
+                        <h3><strong>Deductions Details</strong></h3>
+                    </th>
+                </tr>
+                {% for processor in data|payslip_data:staff|category:2 %}
+                    <tr>
+                        {% for k, value in processor.items %}
+                            {% if k == 'earning_and_deductions_type__ed_type' %}
+                                <th>{{ value }}</th>
+                            {% else %}
+                                <td class="d-flex justify-content-end borderless">
+                                    {{ value|intcomma }}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+
+                    </tr>
+                {% endfor %}
+
+                {% for processor in data|payslip_data:staff|category:3 %}
+                    <tr>
+                        {% for k, value in processor.items %}
+                            {% if k == 'earning_and_deductions_type__ed_type' %}
+                                <th>{{ value }}</th>
+                            {% else %}
+                                <td class="d-flex justify-content-end borderless">
+                                    {{ value|intcomma }}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+
+                    </tr>
+                {% endfor %}
+                {% with staff|report:period as report %}
+                    <tr style="border-top: 3px solid #8d8d8d;">
+                        <th scope="row"><h5>Total Deductions</h5></th>
+                        <td class="d-flex justify-content-end borderless">
+                            {{ report.total_deductions|intcomma }}
+                        </td>
+                    </tr>
+                {% endwith %}
+                {% with staff|report:period as report %}
+                    <tr style="border-top: 3px solid #8d8d8d; border-bottom: 3px solid #8d8d8d">
+                        <th scope="row"><h4>Net Pay</h4></th>
+                        <td class="d-flex justify-content-end borderless">
+                            {{ report.net_pay|intcomma }}
+                        </td>
+                    </tr>
+                {% endwith %}
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <th colspan="2">
+                    <div>
+                        <span style="margin-right: 6px">Prepared by......................</span>
+                        <span>Reviewed by.....................</span>
+                    </div>
+                </th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<script>
+    $('tr').style.padding = '0px'
+</script>

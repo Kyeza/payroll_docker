@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block css %}
+    {% include 'partials/users.css' %}
+{% endblock css %}
+{% block content %}
+    <div class="content-section">
+        <h3 class="border-bottom mb-4">{{ title }}</h3>
+        <div class="table-responsive">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">{{ title }}</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Payroll key</th>
+                    <th>Payroll center</th>
+                    <th>Month</th>
+                    <th>Year</th>
+                    <th>Current Dollar Rate</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for payroll_period in object_list %}
+                    <tr>
+                        <td>
+                            {% if payroll_period.payrollprocessormanager.processed_status == 'YES' and payroll_period.payrollprocessormanager.number_of_approvers == 0 %}
+                                {{ payroll_period.payroll_key }}
+                            {% else %}
+                                <a href="{% url 'reports:display-summary-report' payroll_period.pk %}">
+                                    {{ payroll_period.payroll_key }}
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>{{ payroll_period.payroll_center }}</td>
+                        <td>{{ payroll_period.month }}</td>
+                        <td>{{ payroll_period.year }}</td>
+                        <td>
+                            <label>
+                                <input value="{{ payroll_period.processing_dollar_rate }}"
+                                       class="p-1 rounded dollar-rate"
+                                       id="{{ payroll_period.id }}" type="number">
+                            </label>
+                        </td>
+                        <td>
+                            {% if payroll_period.payrollprocessormanager.processed_status == 'YES' and payroll_period.payrollprocessormanager.number_of_approvers == 0 %}
+                                <button class="btn btn-sm btn-primary border-0" disabled>
+                                    Process
+                                </button>
+                            {% else %}
+                                <button id="{{ payroll_period.id }}" style="color: white"
+                                        class="btn btn-sm btn-primary border-0 process_{{ payroll_period.id }}"
+                                        disabled>
+                                    Process
+                                </button>
+                            {% endif %}
+                            <div id="loader{{ payroll_period.id }}"></div>
+                        </td>
+                        <td>{{ payroll_period.status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+        $(function () {
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    let cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        let cookie = cookies[i].trim();
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            let csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            $('.dollar-rate').on('click', function () {
+                let rate = $(this).val();
+                console.log('my value is :' + rate);
+                if ( rate.valueOf().length > 0 ) {
+                    $('.process_' + $(this).attr('id')).attr('disabled', false).addClass('active')
+                        .on('click', function () {
+                            let id = $(this).attr('id');
+                            let loaderId = '#loader' + id;
+                            let btnId = '#' + id;
+                            $(btnId).hide();
+                            $(loaderId).addClass('loader');
+                            console.log('Processing....');
+
+                            let processUrl = '/users/payroll_period/' + id + '/process/';
+
+                            let data = {
+                                'process_with_rate': rate
+                            };
+
+                            $.post(processUrl, data, function (response) {
+                                $(loaderId).removeClass('loader');
+                                $(btnId).show();
+                                console.log('Am back with');
+                                console.log(response);
+                                if (response.status === 'Failed') {
+                                    console.log(response.message);
+                                } else {
+                                    console.log(response.status);
+                                    window.location.href = '/reports/summary_report/' + id;
+                                }
+                            });
+                        });
+                    console.log(typeof rate);
+                    console.log('enabled: ' + rate);
+                } else {
+                    $('.process_' + $(this).attr('id')).removeClass('active').attr('disabled', true);
+                    console.log('disabled');
+                }
+            });
+        });
+    </script>
+{% endblock scripts %}

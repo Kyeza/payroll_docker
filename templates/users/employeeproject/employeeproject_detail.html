@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">Project Details</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Employee name: <span style="font-weight: bold">{{ object.employee.user.get_full_name }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Cost Centre: <span style="font-weight: bold">{{ object.employee.cost_centre }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Employee code: <span style="font-weight: bold">{{ object.employee.id_number }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Project code: <span style="font-weight: bold">{{ object.project_code}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Duty Station: <span style="font-weight: bold">{{ object.employee.duty_station }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    SOF code: <span style="font-weight: bold">{{ object.sof_code }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Department: <span style="font-weight: bold">{{ object.employee.department }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    DEA code: <span style="font-weight: bold">{{ object.dea_code }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Job title: <span style="font-weight: bold">{{ object.employee.job_title }}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Contribution %age: <span style="font-weight: bold">{{ object.contribution_percentage }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Employee Status: <span style="font-weight: bold">{{ object.employee.employment_status }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="border p-2 m-2">
+                    Contract Type: <span style="font-weight: bold">{{ object.employee.contract_type }}</span>
+                </div>
+            </div>
+        </div>
+        <a class="btn btn-success" href="{% url 'users:employee-project-list' %}">
+            BACK
+        </a>
+    </div>
+{% endblock content %}

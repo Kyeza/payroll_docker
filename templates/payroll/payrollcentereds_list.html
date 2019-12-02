@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <h4 class="border-bottom mb-4">Earning and Deductions</h4>
+        <div class="d-flex flex-row-reverse">
+            <div class="p-2">
+                <a class="btn btn-success btn-md" href="{% url 'payroll:payroll-center-eds-create' %}">Create</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Earning and Deductions</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Payroll center</th>
+                    <th>Earning and Deduction</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for pc_ed in object_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'payroll:payroll-center-eds-detail' pk=pc_ed.id %}">{{ pc_ed.payroll_center }}</a>
+                        </td>
+                        <td>{{ pc_ed.ed_type }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}

@@ -1,0 +1,90 @@
+html, body {
+	font-size: 1rem;
+	font-family: Segoe UI;
+	background-color: #eee;
+}
+
+.logo {
+	margin: 0 auto 5px auto;
+	padding: 0px;
+	height: 90px;
+	width: 60%;
+}
+
+img {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	height: 70px;
+}
+
+.logo-brand {
+	text-align: left;
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin: -10px auto 0 50.5px;
+	color: black;
+}
+
+.title {
+	text-align: center;
+	color: black;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.content {
+	margin: auto;
+	width: 450px;
+	padding: 10px;
+	background-color: #fff;
+}
+
+table {
+  	border-top: 5px solid black;
+	border-collapse: collapse;
+	margin-top: 0;
+	width: 100%;
+}
+
+th, td {
+  	padding: 8px;
+  	text-align: left;
+}
+
+th {
+	width: 55%;
+}
+
+td {
+	width: 22.5%;
+}
+
+.horizontal-line {
+	border-top: 5px solid black;
+	width: 100%
+}
+
+.horizontal-line-1 {
+	border-top: 4px solid black;
+	width: 100%
+}
+
+.sub-title {
+	font-size: 1.5rem;
+	font-weight: 600;
+	padding: 2px 7px;
+}
+
+td.amount {
+	text-align: right;
+}
+
+td.total {
+	text-align: left;
+	padding-left: 44px;
+}p
+
+.footer {
+	font-weight: 600;
+}

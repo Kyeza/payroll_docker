@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <h3 class="border-bottom mb-4">Assign Projects</h3>
+        <div class="table-responsive-md">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Assign Projects</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Job Title</th>
+                    <th>ID Number</th>
+                    <th>Email</th>
+                    <th>Mobile No</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for employee in object_list %}
+                    <tr>
+                        <td>{{ employee.user.get_full_name }}</td>
+                        <td>{{ employee.job_title }}</td>
+                        <td>{{ employee.id_number }}</td>
+                        <td>{{ employee.user.email }}</td>
+                        <td>{{ employee.mobile_number }}</td>
+                        <td>{{ employee.department }}</td>
+                        <td class="text-success">{{ employee.employment_status }}</td>
+                        <td><a class="btn btn-primary btn-sm"
+                               href="{% url 'users:employee-project-creation' pk=employee.pk %}">
+                            ASSIGN PROJECT
+                        </a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}

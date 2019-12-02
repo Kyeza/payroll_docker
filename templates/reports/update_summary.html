@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load reports_extras %}
+{% load humanize %}
+
+{% block content %}
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            {{ e_formset.management_form }}
+            {{ d_formset.management_form }}
+            {{ s_formset.management_form }}
+            <fieldset class="form-group">
+                <legend class="border-bottom text-center mb-4">
+                    UPDATING PAYROLL INFORMATION FOR
+                    <span style="color: #ff0000">{{ employee.user.get_full_name|upper }}</span>
+                </legend>
+                <div class="d-flex flex-wrap justify-content-between">
+                    <div class="p-2 flex-fill">
+                        <h5>Earnings</h5>
+                        <table class="table table-bordered table-sm">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for form in e_formset %}
+                                <tr>
+                                    <th scope="row">{{ form.earning_and_deductions_type }}</th>
+                                    <td class="d-flex justify-content-end borderless">{{ form.amount }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <th scope="row">Total Earning</th>
+                                <td class="d-flex justify-content-center borderless">
+                                    {{ extra_data.gross_earning|intcomma }}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-2 flex-fill">
+                        <h5>Deductions</h5>
+                        <table class="table table-bordered table-sm">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for form in d_formset %}
+                                <tr>
+                                    <th scope="row">{{ form.earning_and_deductions_type }}</th>
+                                    <td class="d-flex justify-content-end borderless">{{ form.amount }}</td>
+                                </tr>
+                            {% endfor %}
+                            {% for form in s_formset %}
+                                <tr>
+                                    <th scope="row">{{ form.earning_and_deductions_type }}</th>
+                                    <td class="d-flex justify-content-end borderless">{{ form.amount }}</td>
+                                </tr>
+                            {% endfor %}
+                            <tr>
+                                <th scope="row">Total Deductions</th>
+                                <td class="d-flex justify-content-center borderless">
+                                    {{ extra_data.total_deductions|intcomma }}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap justify-content-between">
+                    <div class="p-2 flex-fill">
+                        <h5>Summary</h5>
+                        <table class="table table-sm">
+                            <tbody>
+                            <tr>
+                                <th scope="row">Total Earning</th>
+                                <td class="d-flex justify-content-end">{{ extra_data.gross_earning }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Total Deductions</th>
+                                <td class="d-flex justify-content-end">{{ extra_data.total_deductions }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Net Pay</th>
+                                <td class="d-flex justify-content-end">{{ extra_data.net_pay }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="p-2 flex-fill">
+                        <h5>Bank information</h5>
+                        <table class="table table-sm">
+                            <thead class="text-info">
+                            <tr>
+                                <th>Bank</th>
+                                <th>Account Number</th>
+                                <th>Percentage</th>
+                                <th>Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ employee.bank_1 }}</td>
+                                <td>{{ employee.first_account_number }}</td>
+                                <td>{{ employee.first_bank_percentage }}</td>
+                                <td class="d-flex justify-content-end">0</td>
+                            </tr>
+                            <tr>
+                                <td>{{ employee.bank_2 }}</td>
+                                <td>{{ employee.second_account_number}}</td>
+                                <td>{{ employee.second_bank_percentage }}</td>
+                                <td class="d-flex justify-content-end">0</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-success" type="submit">UPDATE</button>
+                <a class="btn btn-danger" href="{% url 'reports:display-summary-report' payroll_period.id %}">CANCEL</a>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

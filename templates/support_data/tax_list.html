@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <h4 class="border-bottom mb-4">Tax Brackets</h4>
+        <div class="table-responsive">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Tax Brackets</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Country</th>
+                    <th>Lower</th>
+                    <th>Upper</th>
+                    <th>Fixed</th>
+                    <th>Year</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for tax_bracket in object_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'payroll:ed-type-detail' tax_bracket.id %}">{{ tax_bracket.country }}</a>
+                        </td>
+                        <td>{{ tax_bracket.lower_boundary }}</td>
+                        <td>{{ tax_bracket.upper_boundary }}</td>
+                        <td>{{ tax_bracket.fixed_amount }}</td>
+                        <td>{{ tax_bracket.year }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+
+{% block content %}
+    <div class="content-section">
+        <h4 class="border-bottom mb-4">Approved Staff List</h4>
+        <div class="table-responsive">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Approved Staff List</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Full name</th>
+                    <th>Date Of Birth</th>
+                    <th>Sex</th>
+                    <th>Marital status</th>
+                    <th>Mobile No.</th>
+                    <th>Email</th>
+                    <th>ID No.</th>
+                    <th>Agresso No.</th>
+                    <th>Passport</th>
+                    <th>Nationality</th>
+                    <th>Home address</th>
+                    <th>Residential address</th>
+                    <th>State</th>
+                    <th>Duty country</th>
+                    <th>Duty station</th>
+                    <th>Department</th>
+                    <th>Job title</th>
+                    <th>Reports to</th>
+                    <th>Appointment date</th>
+                    <th>Contract type</th>
+                    <th>Contract expiry</th>
+                    <th>Employee category</th>
+                    <th>Grade</th>
+                    <th>Basic salary</th>
+                    <th>Currency</th>
+                    <th>TIN No.</th>
+                    <th>Social security</th>
+                    <th>Social security No.</th>
+                    <th>Payroll Center</th>
+                    <th>Bank 1</th>
+                    <th>A/C 1</th>
+                    <th>Bank 1 %age</th>
+                    <th>Bank 2</th>
+                    <th>A/C 2</th>
+                    <th>Bank 2 %age</th>
+                    <th>Kin full name</th>
+                    <th>Kin phone no.</th>
+                    <th>Kin email</th>
+                    <th>Relationship</th>
+                    <th>DR A/C code</th>
+                    <th>CR A/C code</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for employee in object_list %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'users:user-detail' pk=employee.pk %}">{{ employee.user.get_full_name }}</a>
+                        </td>
+                        <td>{{ employee.date_of_birth|date:'d/m/Y' }}</td>
+                        <td>{{ employee.sex }}</td>
+                        <td>{{ employee.marital_status }}</td>
+                        <td>{{ employee.mobile_number }}</td>
+                        <td>{{ employee.user.email }}</td>
+                        <td>{{ employee.id_number }}</td>
+                        <td>{{ employee.agresso_number }}</td>
+                        <td>{{ employee.passport_number }}</td>
+                        <td>{{ employee.nationality }}</td>
+                        <td>{{ employee.home_address }}</td>
+                        <td>{{ employee.residential_address }}</td>
+                        <td>{{ employee.district }}</td>
+                        <td>{{ employee.duty_country }}</td>
+                        <td>{{ employee.duty_station }}</td>
+                        <td>{{ employee.department }}</td>
+                        <td>{{ employee.job_title }}</td>
+                        <td>{{ employee.line_manager }}</td>
+                        <td>{{ employee.appointment_date|date:'d M, Y' }}</td>
+                        <td>{{ employee.contract_type }}</td>
+                        <td>{{ employee.contract_expiry }}</td>
+                        <td>{{ employee.category }}</td>
+                        <td>{{ employee.grade }}</td>
+                        <td>{{ employee.basic_salary|intcomma }}</td>
+                        <td>{{ employee.currency }}</td>
+                        <td>{{ employee.tin_number }}</td>
+                        <td>{{ employee.social_security }}</td>
+                        <td>{{ employee.social_security_number }}</td>
+                        <td>{{ employee.payroll_center }}</td>
+                        <td>{{ employee.bank_1 }}</td>
+                        <td>{{ employee.first_account_number }}</td>
+                        <td>{{ employee.first_bank_percentage }}</td>
+                        <td>{{ employee.bank_2 }}</td>
+                        <td>{{ employee.second_account_number }}</td>
+                        <td>{{ employee.second_bank_percentage }}</td>
+                        <td>{{ employee.kin_full_name }}</td>
+                        <td>{{ employee.kin_phone_number }}</td>
+                        <td>{{ employee.kin_email }}</td>
+                        <td>{{ employee.kin_relationship }}</td>
+                        <td>{{ employee.dr_ac_code }}</td>
+                        <td>{{ employee.cr_ac_code }}</td>
+                        <td class="text-success">{{ employee.employment_status }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                        pageSize: 'A1',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}

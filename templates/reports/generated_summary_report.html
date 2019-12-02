@@ -1,0 +1,115 @@
+{% load users_extras %}
+{% load reports_extras %}
+{% load humanize %}
+
+{% for period, data in results.items %}
+    <h4 class="border-top pt-4 mb-2 text-center">
+        {{ period.payroll_center }}
+    </h4>
+    <h5 id="time" class="border-bottom mb-5 text-center">
+        PAYROLL FOR THE MONTH OF
+        <span id="{{ period.id }}" class="payroll_period"
+              style="color: #2196F3">{{ period.month }}-{{ period.year }}</span>
+    </h5>
+    <div class="d-flex flex-row-reverse">
+        <div class="p-2">
+            <a id="send_mail" class="btn btn-success btn-md" href="#">
+                Email PaySlips
+            </a>
+        </div>
+        <div class="p-2">
+            <a id="approval_button" class="btn btn-success btn-md"
+               href="{% url 'support_data:request-approval' period_id=period.id %}">
+                Send to Approvers
+            </a>
+        </div>
+        <div class="p-2 mb-2 mr-auto bg-light rounded">
+            <strong>APPROVAL STATUS</strong>: <span id="approval_status"> </span>
+        </div>
+    </div>
+    <div class="table-responsive table-container"
+         style="font-size: 9px; font-family: TimesNewRoman,'Times New Roman',serif;">
+        <table id="summary_id" class="table table-sm ta6b 3ble-striped table-bordered w-100">
+            <thead class="thead-dark">
+            <tr>
+                <th></th>
+                <th>Location</th>
+                <th>Cost Centre</th>
+                <th>PIT Cost Centre</th>
+                <th>Employee Names</th>
+                <th>Analysis</th>
+                <th>Job title</th>
+                <th>Basic Pay</th>
+                <th>Arrears</th>
+                <th>Overtime</th>
+                <th>Acting Allowance</th>
+                <th>Other Earnings</th>
+                <th>Gross</th>
+                <th>NSIF 8%</th>
+                <th>PIT</th>
+                <th>Salary Advance</th>
+                <th>Other Deductions</th>
+                <th>Total Deductions</th>
+                <th>Net Pay</th>
+                <th>Payment Method</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for staff in data|get_distinct_employee_set %}
+                <tr>
+                    <td></td>
+                    {% with staff|report:period as report %}
+                        <td>{{ staff.duty_station }}</td>
+                        <td>{{ staff.cost_centre }}</td>
+                        <td>{{ staff.cost_centre }}</td>
+                        <td>
+                            <a href="{% url 'reports:generate-payslip' pp=period.id user=staff.pk %}">
+                                {{ report.employee_name }}
+                            </a>
+                        </td>
+                        <td>{{ report.analysis }}</td>
+                        <td>{{ report.job_title }}</td>
+                        {% with data|category_display:1|user_data:staff as user_earnings %}
+                            {% for earning in user_earnings %}
+                                {% for k, amount in earning.items %}
+                                    <td>{{ amount|intcomma }}</td>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endwith %}
+                        <td>{{ report.gross_earning|intcomma }}</td>
+                        {% with data|category_display:2|user_data:staff as user_deductions %}
+                            {% for deduction in user_deductions %}
+                                {% for k, amount in deduction.items %}
+                                    <td>{{ amount|intcomma }}</td>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endwith %}
+                        <td>{{ report.total_deductions|intcomma }}</td>
+                        <td>{{ report.net_pay|intcomma }}</td>
+                        <td><{{ staff.payment_type }}/td>
+                    {% endwith %}
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+            <tr>
+                <th></th>
+                <th colspan="6" class="font-weight-light text-info text-center">Total:</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+{% endfor %}

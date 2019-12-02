@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">CostCentre</h3>
+        Cost Centre: <p style="font-weight: bold">{{ object.cost_centre }}</p>
+        Description: <p style="font-weight: bold">{{ object.description }}</p>
+        <a class="btn btn-success" href="{% url 'users:cost-centre-list' %}">
+            BACK
+        </a>
+    </div>
+{% endblock content %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="content-section d-flex justify-content-center">
+        {% include 'partials/payslip_1.html' %}
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.14.0/printThis.js"></script>
+    <script>
+        $('#ignore-print').click(function () {
+            $('.pdf').printThis();
+        })
+    </script>
+{% endblock scripts %}

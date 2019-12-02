@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section text-left">
+        <h3 class="border-bottom mb-4">Grade</h3>
+        Name: <p style="font-weight: bold">{{ object.grade}}</p>
+        Description: <p style="font-weight: bold">{{ object.description }}</p>
+        <a class="btn btn-success" href="{% url 'support_data:grade-list' %}">
+            BACK
+        </a>
+    </div>
+{% endblock content %}

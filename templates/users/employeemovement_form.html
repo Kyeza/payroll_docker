@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block content %}
+    <div class="content-section">
+        <form id="movementsForm" method="POST" data-user="{{ user_id }}"
+              data-movement-url="{% url 'users:ajax_load_movements' %}"
+              data-current-url="{% url 'users:ajax_load_current' %}">
+            {% csrf_token %}
+
+            <div class="form-group">
+                {{ form|crispy }}
+                <button class="btn btn-success" type="submit">SUBMIT</button>
+                <a class="btn btn-danger" href="{% url 'users:employee_movements_changelist' %}">CANCEL</a>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+
+{% block scripts %}
+    <script>
+        $("#id_parameter").change(function () {
+            let form = $("#movementsForm");
+            let url = form.attr('data-movement-url');
+            let user_id = form.attr('data-user');
+            let current_param = form.attr('data-current-url');
+            console.log(url);
+            let parameter_id = $(this).val();
+
+            $.ajax({
+                url: current_param,
+                data: {
+                    'parameter': parameter_id,
+                    'user_id': user_id
+                },
+                success: function (data) {
+                    console.log("Serial data: " + data['movements_from']);
+                    $("#id_move_from").val(data['movements_from']);
+                }
+            });
+
+            $.ajax({
+                url: url,
+                data: {
+                    'parameter': parameter_id
+                },
+                success: function (data) {
+                    $("#id_move_to").html(data);
+                }
+            });
+        })
+    </script>
+{% endblock scripts %}

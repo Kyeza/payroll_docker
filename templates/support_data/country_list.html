@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <h4 class="border-bottom mb-4">Countries of Origin</h4>
+        <div class="d-flex flex-row-reverse">
+            <div class="p-2">
+                <a class="btn btn-success btn-md" href="{% url 'support_data:country-create' %}">Create</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4">Countries of Origin</caption>
+                <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Code</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for country in object_list %}
+                    <tr>
+                        <td>{{ country.country_name }}</td>
+                        <td>{{ country.country_code }}</td>
+                        <td class="text-primary">
+                            <a class="btn btn-primary btn-sm"
+                               href="{% url 'support_data:country-detail' pk=country.pk %}">View</a>
+                            <a class="btn btn-warning btn-sm"
+                               href="{% url 'support_data:country-update' pk=country.pk %}">Edit</a>
+                            <a class="btn btn-danger btn-sm"
+                               href="#">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function() {
+            $('#table_id').DataTable( {
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                        orientation: 'landscape',
+                    },
+                    'print'
+                ]
+            } );
+        } );
+    </script>
+{% endblock scripts %}
