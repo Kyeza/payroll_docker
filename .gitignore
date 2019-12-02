@@ -6,6 +6,16 @@ __pycache__
 db.sqlite3
 media/*
 !media/.gitkeep
+!media/approve_user.png
+!media/close_period.png
+!media/default.png
+!media/full_logo.png
+!media/logo.png
+!media/new_user.png
+!media/open_period.png
+!media/reports.png
+!media/update_user.png
+
 celery_service.py
 
 # Backup files #
