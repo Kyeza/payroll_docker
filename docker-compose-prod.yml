@@ -38,6 +38,11 @@ services:
     ports:
       - "15672:5672"
 
+  dockerhost:
+    image: qoomon/docker-host
+    cap_add: [ 'NET_ADMIN', 'NET_RAW' ]
+    restart: on-failure
+
 volumes:
   dbdata:
   media:

@@ -123,8 +123,8 @@ else:
             },
             'NAME': 'payroll_schema',
             'USER': 'root',
-            'PASSWORD': 'Kam@gi12345',
-            'HOST': 'db',
+            'PASSWORD': 'Kam12345',
+            'HOST': 'dockerhost',
             'PORT': '3306',
         }
     }
