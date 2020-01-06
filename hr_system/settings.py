@@ -124,7 +124,6 @@ else:
             'NAME': 'payroll_schema',
             'USER': 'root',
             'PASSWORD': 'Kam12345',
-            'HOST': 'db',
             'PORT': '3306',
         }
     }
