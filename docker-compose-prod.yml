@@ -37,7 +37,7 @@ services:
     image: rabbitmq:3.7-alpine
     env_file: *environ_file
     ports:
-      - "5672:15672"
+      - "15672:15672"
 
 volumes:
   dbdata:
