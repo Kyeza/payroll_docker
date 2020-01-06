@@ -121,10 +121,11 @@ else:
                 'sql_mode': 'STRICT_TRANS_TABLES',
                 'isolation_level': 'read committed'
             },
-            'NAME': 'payroll_schema',
+            'NAME': os.environ.get('MYSQL_DATABASE'),
             'USER': 'root',
-            'PASSWORD': 'Kam12345',
-            'PORT': '3306',
+            'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+            'HOST': os.environ.get('MYSQL_HOST'),
+            'PORT': os.environ.get('MYSQL_PORT'),
         }
     }
 # [END db_setup]
