@@ -124,7 +124,7 @@ else:
             'NAME': 'payroll_schema',
             'USER': 'root',
             'PASSWORD': 'Kam12345',
-            'HOST': 'dockerhost',
+            'HOST': 'db',
             'PORT': '3306',
         }
     }

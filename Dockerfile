@@ -18,3 +18,7 @@ RUN groupadd -r celery && useradd --no-log-init -r -g celery celery
 
 # Add current directory code to working directory
 ADD . /hr_system/
+
+#COPY docker-entry.sh /usr/local/bin/
+
+#ENTRYPOINT ["/usr/local/bin/docker-entry.sh"]
