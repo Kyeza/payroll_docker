@@ -1,7 +1,7 @@
 from datetime import datetime
 
 
-PAYROLL_YEARS = [(year, year) for year in range(datetime.now().year, datetime.now().year + 10)]
+PAYROLL_YEARS = [(year, year) for year in range(datetime.now().year-1, datetime.now().year + 10)]
 
 month_str = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY',
              'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER',
