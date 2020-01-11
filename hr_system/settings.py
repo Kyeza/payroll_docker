@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import json
+
+with open('/etc/config.json') as config_file:
+	config = json.load(config_file)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from celery.schedules import crontab
@@ -21,11 +25,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '141b364869dd5b23831d1cad86b05342'
+SECRET_KEY = config['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = int(os.environ.get('DEBUG', default=1))
+DEBUG = True if config['DEBUG'] == "True" else False
 
 ALLOWED_HOSTS = ['*']
 
@@ -121,11 +125,11 @@ else:
                 'sql_mode': 'STRICT_TRANS_TABLES',
                 'isolation_level': 'read committed'
             },
-            'NAME': os.environ.get('MYSQL_DATABASE'),
+            'NAME': 'payroll_schema',
             'USER': 'root',
-            'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
-            'HOST': os.environ.get('MYSQL_HOST'),
-            'PORT': os.environ.get('MYSQL_PORT'),
+            'PASSWORD': 'Kam12345',
+            'HOST':'localhost',
+            'PORT': '3306',
         }
     }
 # [END db_setup]
@@ -215,9 +219,9 @@ EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'kyezaarnold63@gmail.com'
-EMAIL_HOST_PASSWORD = 'KAM12345'
-DEFAULT_FROM_EMAIL = 'kyezaarnold63@gmail.com'
+EMAIL_HOST_USER = config['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = config['EMAIL_HOST_PASSWORD']
+DEFAULT_FROM_EMAIL = config['EMAIL_HOST_USER']
 
 CACHES = {
     'default': {
