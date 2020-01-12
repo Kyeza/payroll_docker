@@ -13,9 +13,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 import json
 
-with open('/etc/config.json') as config_file:
-	config = json.load(config_file)
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from celery.schedules import crontab
 
@@ -25,11 +22,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config['SECRET_KEY']
+SECRET_KEY = 'this is my secret key'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = True if config['DEBUG'] == "True" else False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -219,9 +216,9 @@ EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = config['EMAIL_HOST_PASSWORD']
-DEFAULT_FROM_EMAIL = config['EMAIL_HOST_USER']
+EMAIL_HOST_USER = "kyezaarnold63@gmail.com"
+EMAIL_HOST_PASSWORD = "KAM12345"
+DEFAULT_FROM_EMAIL = "kyezaarnold63@gmail.com"
 
 CACHES = {
     'default': {

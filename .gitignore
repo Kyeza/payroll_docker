@@ -18,6 +18,8 @@ media/*
 
 celery_service.py
 
+hr_system/settings.py
+
 # Backup files #
 *.bak
 
