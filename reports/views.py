@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 
 import weasyprint
 from django.conf import settings
@@ -390,7 +391,6 @@ def generate_reconciliation_report(request):
             context_1 = generate_summary_data(period_one)
             context_2 = generate_summary_data(period_two)
 
-            # employees_in_both_periods
             employees_in_both_periods = set(context_1['employees_to_process']) \
                 .intersection(set(context_2['employees_to_process']))
             logger.info(f'Employees in both periods {employees_in_both_periods}')
@@ -574,7 +574,7 @@ def generate_reconciliation_report(request):
                     logger.info(f'Getting user Extra reports for {employee}')
                     period_two_extra_data = ExTraSummaryReportInfo.objects.filter(
                         payroll_period=period_two).filter(employee=employee) \
-                        .values_list('gross_earning', 'total_deductions', 'net_pay').firs()
+                        .values_list('gross_earning', 'total_deductions', 'net_pay').first()
 
                     # earnings reconciliation
                     logger.info(f'Getting user earnings processors for {employee}')
