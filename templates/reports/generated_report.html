@@ -38,7 +38,43 @@
                         extend: 'pdfHtml5',
                     },
                     'print'
-                ]
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    let i;
+                    let total = [];
+                    for (i = 0; i < colCount; i++) {
+                        if (i > 5) {
+                            total[i] = api
+                                .column(i)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b)) * 100) / 100;
+                                }, 0);
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i > 5) {
+                            $( api.column( i ).footer() ).html(
+                                total[i].toLocaleString()
+                            );
+                        }
+                    }
+                }
             } );
 
             $('#bank_table_id thead tr').clone(true).appendTo('#bank_table_id thead');
@@ -70,7 +106,43 @@
                         extend: 'pdfHtml5',
                     },
                     'print'
-                ]
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    let i;
+                    let total = [];
+                    for (i = 0; i < colCount; i++) {
+                        if (i > 5) {
+                            total[i] = api
+                                .column(i)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b)) * 100) / 100;
+                                }, 0);
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i > 5) {
+                            $( api.column( i ).footer() ).html(
+                                total[i].toLocaleString()
+                            );
+                        }
+                    }
+                }
             });
 
             $('#cash_table_id thead tr').clone(true).appendTo('#cash_table_id thead');
@@ -102,7 +174,43 @@
                         extend: 'pdfHtml5',
                     },
                     'print'
-                ]
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    let i;
+                    let total = [];
+                    for (i = 0; i < colCount; i++) {
+                        if (i > 4) {
+                            total[i] = api
+                                .column(i)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b)) * 100) / 100;
+                                }, 0);
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i > 4) {
+                            $( api.column( i ).footer() ).html(
+                                total[i].toLocaleString()
+                            );
+                        }
+                    }
+                }
             });
 
             $('#paye_table_id thead tr').clone(true).appendTo('#paye_table_id thead');
@@ -134,7 +242,43 @@
                         extend: 'pdfHtml5',
                     },
                     'print'
-                ]
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    let i;
+                    let total = [];
+                    for (i = 0; i < colCount; i++) {
+                        if (i > 3) {
+                            total[i] = api
+                                .column(i)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b)) * 100) / 100;
+                                }, 0);
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i > 3) {
+                            $( api.column( i ).footer() ).html(
+                                total[i].toLocaleString()
+                            );
+                        }
+                    }
+                }
             });
 
             $('#leger_id').DataTable( {

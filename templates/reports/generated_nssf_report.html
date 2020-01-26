@@ -7,7 +7,7 @@
         {{ period.payroll_center }}
     </h4>
     <h5 class="border-bottom mb-5 text-center">
-        {{ report }} REPORT FOR PERIOD
+        NSIF REPORT FOR PERIOD
         <span style="color: #2196F3">{{ period.month }}, {{ period.year }}</span>
     </h5>
     <div class="table-responsive">
@@ -60,6 +60,17 @@
                 </tr>
             {% endfor %}
             </tbody>
+            <tfoot>
+            <tr>
+                <th></th>
+                <th colspan="5" class="font-weight-light text-info text-center">Total:</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </tfoot>
+
         </table>
     </div>
 {% endfor %}

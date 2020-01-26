@@ -7,13 +7,13 @@
         {{ period.payroll_center }}
     </h4>
     <h5 class="border-bottom mb-5 text-center">
-        {{ report }} REPORT FOR PERIOD
+        PIT REPORT FOR PERIOD
         <span style="color: #2196F3">{{ period.month }}, {{ period.year }}</span>
     </h5>
     <div class="table-responsive">
         <table id="paye_table_id" class="table table-sm table-striped table-bordered w-100">
             <caption class="border-bottom mb-5">
-                {{ report }} REPORT FOR PERIOD
+                PIT REPORT FOR PERIOD
                 <span style="color: #2196F3">{{ period.month }}, {{ period.year }}</span>
             </caption>
             <thead class="thead-dark">
@@ -58,6 +58,19 @@
                 </tr>
             {% endfor %}
             </tbody>
+            <tfoot>
+            <tr>
+                <th></th>
+                <th colspan="3" class="font-weight-light text-info text-center">Total:</th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </tfoot>
         </table>
     </div>
 {% endfor %}

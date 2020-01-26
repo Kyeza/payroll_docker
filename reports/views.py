@@ -258,6 +258,10 @@ def generate_reports(request):
 
                     if report == 'PAYE':
                         context['earnings'] = earnings
+                        context['title'] = 'PIT'
+
+                    if report == 'NSSF':
+                        context['title'] = 'NSIF'
 
                     return render(request, 'reports/generated_report.html', context)
                 else:

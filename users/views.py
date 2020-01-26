@@ -446,8 +446,12 @@ class RecruitedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
     template_name = 'users/employees/_recruited_employee_list.html'
 
     def get_queryset(self):
-        return Employee.objects.select_related('user', 'department', 'job_title') \
-            .filter(employment_status='Recruit').order_by('-appointment_date').iterator()
+        if self.request.user.is_superuser:
+            return Employee.objects.select_related('user', 'department', 'job_title') \
+                .filter(employment_status='Recruit').order_by('-appointment_date').iterator()
+        else:
+            return Employee.objects.select_related('user', 'department', 'job_title') \
+                .filter(employment_status='Recruit').order_by('-appointment_date').iterator()
 
 
 class ApprovedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
