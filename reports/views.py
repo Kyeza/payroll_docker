@@ -29,7 +29,7 @@ logger = logging.getLogger('payroll')
 @login_required
 def display_summary_report(request, pk):
     payroll_period = get_object_or_404(PayrollPeriod, pk=pk)
-    context = generate_summary_data(payroll_period)
+    context = generate_summary_data(payroll_period, request.user)
     approval_message_form = DeclinePayrollMessageForm()
 
     context['approval_message_form'] = approval_message_form
@@ -38,12 +38,20 @@ def display_summary_report(request, pk):
 
 
 # generating summary data context
-def generate_summary_data(payroll_period):
-    period_processes = PayrollProcessors.objects \
-        .select_related('employee', 'earning_and_deductions_type', 'earning_and_deductions_category',
-                        'employee__user', 'employee__job_title', 'employee__duty_station') \
-        .filter(payroll_period_id=payroll_period.pk).all() \
-        .prefetch_related('employee__report', 'employee__report__payroll_period')
+def generate_summary_data(payroll_period, system_user):
+    if system_user.is_superuser:
+        period_processes = PayrollProcessors.objects \
+            .select_related('employee', 'earning_and_deductions_type', 'earning_and_deductions_category',
+                            'employee__user', 'employee__job_title', 'employee__duty_station') \
+            .filter(payroll_period_id=payroll_period.pk).all() \
+            .prefetch_related('employee__report', 'employee__report__payroll_period')
+    else:
+        assigned_user_locations = list(system_user.employee.assigned_locations.all())
+        period_processes = PayrollProcessors.objects \
+            .select_related('employee', 'earning_and_deductions_type', 'earning_and_deductions_category',
+                            'employee__user', 'employee__job_title', 'employee__duty_station') \
+            .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
+            .prefetch_related('employee__report', 'employee__report__payroll_period')
     employees_in_period = set()
 
     for process in period_processes.iterator():
@@ -129,36 +137,75 @@ def update_summary_report(request, pp, user):
     return render(request, 'reports/update_summary.html', context)
 
 
-def generate(payroll_period, report):
+def generate(payroll_period, report, system_user):
+    assigned_user_locations = []
+    if not system_user.is_superuser:
+        assigned_user_locations = list(system_user.employee.assigned_locations.all())
     results = dict()
     logger.info(f'generating {report} report data')
-    processors = PayrollProcessors.objects \
-        .select_related('employee', 'payroll_period', 'payroll_period__payroll_center', 'earning_and_deductions_type',
-                        'earning_and_deductions_category', 'employee__user', 'employee__job_title',
-                        'employee__duty_country',
-                        'employee__duty_station', 'employee__currency', 'employee__bank_1', 'employee__bank_2') \
-        .filter(payroll_period_id=payroll_period.pk).all() \
-        .prefetch_related('employee__report', 'employee__report__payroll_period').all()
+    if system_user.is_superuser:
+        processors = PayrollProcessors.objects \
+            .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                            'earning_and_deductions_type',
+                            'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                            'employee__duty_country',
+                            'employee__duty_station', 'employee__currency', 'employee__bank_1', 'employee__bank_2') \
+            .filter(payroll_period_id=payroll_period.pk).all() \
+            .prefetch_related('employee__report', 'employee__report__payroll_period').all()
+    else:
+        processors = PayrollProcessors.objects \
+            .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                            'earning_and_deductions_type',
+                            'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                            'employee__duty_country',
+                            'employee__duty_station', 'employee__currency', 'employee__bank_1', 'employee__bank_2') \
+            .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
+            .prefetch_related('employee__report', 'employee__report__payroll_period').all()
     if payroll_period:
         if report == 'SUMMARY':
-            results[payroll_period] = PayrollProcessors.objects \
-                .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
-                                'earning_and_deductions_type',
-                                'earning_and_deductions_category', 'employee__user', 'employee__job_title',
-                                'employee__duty_country',
-                                'employee__duty_station', 'employee__currency', 'employee__bank_1', 'employee__bank_2') \
-                .filter(payroll_period_id=payroll_period.pk).all() \
-                .prefetch_related('employee__report', 'employee__report__payroll_period').all()
+            if system_user.is_superuser:
+                results[payroll_period] = PayrollProcessors.objects \
+                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                    'earning_and_deductions_type',
+                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                    'employee__duty_country',
+                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                    'employee__bank_2') \
+                    .filter(payroll_period_id=payroll_period.pk).all() \
+                    .prefetch_related('employee__report', 'employee__report__payroll_period').all()
+            else:
+                results[payroll_period] = PayrollProcessors.objects \
+                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                    'earning_and_deductions_type',
+                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                    'employee__duty_country',
+                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                    'employee__bank_2') \
+                    .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
+                    .prefetch_related('employee__report', 'employee__report__payroll_period').all()
         elif report == 'BANK' or report == 'CASH':
-            results[payroll_period] = PayrollProcessors.objects \
-                .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
-                                'earning_and_deductions_type',
-                                'earning_and_deductions_category', 'employee__user', 'employee__job_title',
-                                'employee__duty_country',
-                                'employee__duty_station', 'employee__currency', 'employee__bank_1', 'employee__bank_2') \
-                .filter(payroll_period_id=payroll_period.pk).all() \
-                .prefetch_related('employee__report', 'employee__report__payroll_period') \
-                .filter(employee__payment_type=report).all()
+            if system_user.is_superuser:
+                results[payroll_period] = PayrollProcessors.objects \
+                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                    'earning_and_deductions_type',
+                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                    'employee__duty_country',
+                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                    'employee__bank_2') \
+                    .filter(payroll_period_id=payroll_period.pk).all() \
+                    .prefetch_related('employee__report', 'employee__report__payroll_period') \
+                    .filter(employee__payment_type=report).all()
+            else:
+                results[payroll_period] = PayrollProcessors.objects \
+                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                    'earning_and_deductions_type',
+                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                    'employee__duty_country',
+                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                    'employee__bank_2') \
+                    .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
+                    .prefetch_related('employee__report', 'employee__report__payroll_period') \
+                    .filter(employee__payment_type=report).all()
         elif report == 'LEGER_EXPORT':
             results[payroll_period] = processors.exclude(amount=0)
         elif report == 'LST':
@@ -206,6 +253,7 @@ def generate_leger_export(results, period):
 @login_required
 @permission_required(('payroll.process_payrollperiod',), raise_exception=True)
 def generate_reports(request):
+    system_user = request.user
     if request.method == 'POST':
         form = ReportGeneratorForm(request.POST)
         if form.is_valid():
@@ -222,7 +270,7 @@ def generate_reports(request):
                 if extra_reports.exists():
                     logger.info(f'generating report data for {selected_month}-{year}')
 
-                    results = generate(payroll_period, report)
+                    results = generate(payroll_period, report, system_user)
 
                     earnings = None
                     if 'earnings' in results.keys():
@@ -392,8 +440,8 @@ def generate_reconciliation_report(request):
             period_one = form.cleaned_data.get('first_payroll_period')
             period_two = form.cleaned_data.get('second_payroll_period')
             logger.info(f'reconciling {period_one} and {period_two}')
-            context_1 = generate_summary_data(period_one)
-            context_2 = generate_summary_data(period_two)
+            context_1 = generate_summary_data(period_one, request.user)
+            context_2 = generate_summary_data(period_two, request.user)
 
             employees_in_both_periods = set(context_1['employees_to_process']) \
                 .intersection(set(context_2['employees_to_process']))

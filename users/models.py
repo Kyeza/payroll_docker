@@ -68,7 +68,12 @@ class District(models.Model):
         return self.name
 
 
+class EmployeeManger(models.Manager):
+    pass
+
+
 class Employee(models.Model):
+    objects = EmployeeManger()
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, primary_key=True, editable=False)
     user_group = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True, blank=True)
     marital_status = models.CharField(max_length=9, choices=MARITAL_STATUS, null=True)

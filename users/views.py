@@ -450,8 +450,10 @@ class RecruitedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
             return Employee.objects.select_related('user', 'department', 'job_title') \
                 .filter(employment_status='Recruit').order_by('-appointment_date').iterator()
         else:
+            assigned_user_locations = list(self.request.user.employee.assigned_locations.all())
             return Employee.objects.select_related('user', 'department', 'job_title') \
-                .filter(employment_status='Recruit').order_by('-appointment_date').iterator()
+                .filter(employment_status='Recruit').order_by('-appointment_date')\
+                .filter(duty_station__in=assigned_user_locations).iterator().iterator()
 
 
 class ApprovedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -459,11 +461,19 @@ class ApprovedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, List
     model = Employee
 
     def get_queryset(self):
-        return Employee.objects \
-            .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department', 'job_title',
-                            'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2', 'category',
-                            'currency', 'kin_relationship', 'district') \
-            .filter(employment_status='Approved').iterator()
+        if self.request.user.is_superuser:
+            return Employee.objects.prefetch_related('assigned_locations') \
+                .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department',
+                                'job_title', 'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2',
+                                'category', 'currency', 'kin_relationship', 'district') \
+                .filter(employment_status='Approved').iterator()
+        else:
+            assigned_user_locations = list(self.request.user.employee.assigned_locations.all())
+            return Employee.objects.prefetch_related('assigned_locations') \
+                .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department',
+                                'job_title', 'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2',
+                                'category', 'currency', 'kin_relationship', 'district') \
+                .filter(employment_status='Approved').filter(duty_station__in=assigned_user_locations).iterator()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -477,11 +487,20 @@ class ChangeGroupEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, L
     template_name = 'users/employees/change_group_employee_list.html'
 
     def get_queryset(self):
-        return Employee.objects \
-            .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department', 'job_title',
-                            'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2', 'category',
-                            'currency', 'kin_relationship', 'district') \
-            .filter(employment_status='Approved').iterator()
+        if self.request.user.is_superuser:
+            return Employee.objects \
+                .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department', 'job_title',
+                                'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2', 'category',
+                                'currency', 'kin_relationship', 'district') \
+                .filter(employment_status='Approved').iterator()
+        else:
+            assigned_user_locations = list(self.request.user.employee.assigned_locations.all())
+            return Employee.objects \
+                .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department',
+                                'job_title',
+                                'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2', 'category',
+                                'currency', 'kin_relationship', 'district') \
+                .filter(employment_status='Approved').filter(duty_station__in=assigned_user_locations).iterator().iterator()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
