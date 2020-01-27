@@ -626,6 +626,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
     accrued_gl = EarningDeductionType.objects.get(pk=73)
     for employee in employees_in_period:
         logger.info(f'Processing for user {employee}')
+        basic_salary = 0
         gross_earnings, total_deductions, pit, net_pay, nhif_8, nhif_17 = 0, 0, 0, 0, 0, 0
         ge_data = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_category_id=1).all()
@@ -634,7 +635,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.info(f'Processing for user {employee}: calculating gross earnings')
         if ge_data.exists():
             for inst in ge_data.iterator():
-                if inst.earning_and_deductions_type.id == 1 and inst.amount == 0:
+                if inst.earning_and_deductions_type.id == 1 and inst.amount == 0 and user is None:
                     inst.amount = employee.basic_salary
                     inst.save(update_fields=['amount'])
                 elif inst.earning_and_deductions_type.id == 2 and user is None:
@@ -644,12 +645,15 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
                         inst.save(update_fields=['amount'])
                 gross_earnings += inst.amount
 
+        basic_salary = period_processes.filter(employee=employee) \
+            .filter(earning_and_deductions_type_id=1).first().amount
+
         # calculating NHIF
         logger.info(f'Processing for user {employee}: calculating NHIF')
         employee_nhif = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=32).first()
         if employee_nhif:
-            employee_nhif.amount = round(employee.basic_salary * Decimal(nhif_ed_type.factor))
+            employee_nhif.amount = round(basic_salary * Decimal(nhif_ed_type.factor))
             nhif_8 = employee_nhif.amount
             employee_nhif.save(update_fields=['amount'])
 
@@ -685,7 +689,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         employee_pension_processor = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=75).first()
         if employee_pension_processor:
-            employee_pension_processor.amount = employee.basic_salary * Decimal(5 / 100)
+            employee_pension_processor.amount = basic_salary * Decimal(5 / 100)
             employee_pension_processor.save(update_fields=['amount'])
 
         # update Employer Pension if exists in payroll center
@@ -695,7 +699,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         arrears = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=11).first()
         if employer_pension:
-            employer_pension.amount = (employee.basic_salary + arrears.amount) / Decimal(12)
+            employer_pension.amount = (basic_salary + arrears.amount) / Decimal(12)
             employer_pension.save(update_fields=['amount'])
 
         # update NSSF 17% if exists in payroll center
@@ -740,7 +744,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         employee_accrued_salary_ap = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=72).first()
         if employee_accrued_salary_ap:
-            employee_accrued_salary_ap.amount = (employee.basic_salary + arrears.amount) / Decimal(accrued_ap.factor)
+            employee_accrued_salary_ap.amount = (basic_salary + arrears.amount) / Decimal(accrued_ap.factor)
             employee_accrued_salary_ap.save(update_fields=['amount'])
 
         # update accrued salary gl if exists in payroll center
@@ -748,7 +752,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         employee_accrued_salary_gl = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=73).first()
         if employee_accrued_salary_gl:
-            employee_accrued_salary_gl.amount = (employee.basic_salary + arrears.amount) / Decimal(accrued_gl.factor)
+            employee_accrued_salary_gl.amount = (basic_salary + arrears.amount) / Decimal(accrued_gl.factor)
             employee_accrued_salary_gl.save(update_fields=['amount'])
 
         # updating NHIF export
