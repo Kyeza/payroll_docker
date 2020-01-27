@@ -26,13 +26,16 @@ class EmployeeChangeList(ChangeList):
         super().__init__(request, model, list_display, list_display_links, list_filter, date_hierarchy, search_fields,
                          list_select_related, list_per_page, list_max_show_all, list_editable, model_admin, sortable_by)
 
-        self.list_display = ['user', 'user_group', 'date_of_birth', 'job_title', 'appointment_date']
+        self.list_display = ['user', 'user_group', 'date_of_birth', 'job_title', 'appointment_date', ]
         self.list_display_links = ['user']
         self.list_editable = ['assigned_locations']
 
 
 class EmployeeAdmin(admin.ModelAdmin):
     list_per_page = 10
+    ordering = ['user']
+    list_select_related = ['user']
+    search_fields = ['user__first_name', 'user__middle_name', 'user__last_name', 'user__username']
 
     def get_changelist(self, request, **kwargs):
         return EmployeeChangeList
