@@ -38,6 +38,7 @@
     <orderEntry type="library" name="R Skeletons" level="application" />
     <orderEntry type="library" name="Google App Engine SDK" level="project" />
     <orderEntry type="library" name="Google App Engine SDK" level="project" />
+    <orderEntry type="library" name="range_dates" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
@@ -46,8 +47,5 @@
         <option value="$MODULE_DIR$/Lib/site-packages/django/forms/templates" />
       </list>
     </option>
-  </component>
-  <component name="TestRunnerService">
-    <option name="PROJECT_TEST_RUNNER" value="Unittests" />
   </component>
 </module>

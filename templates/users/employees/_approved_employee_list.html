@@ -10,52 +10,52 @@
                 <caption class="border-bottom mb-4">Approved Staff List</caption>
                 <thead class="thead-dark">
                 <tr>
-                    <th>Full name</th>
-                    <th>Date Of Birth</th>
-                    <th>Sex</th>
-                    <th>Marital status</th>
-                    <th>Mobile No.</th>
-                    <th>Email</th>
-                    <th>ID No.</th>
-                    <th>Agresso No.</th>
-                    <th>Passport</th>
-                    <th>Nationality</th>
-                    <th>Home address</th>
-                    <th>Residential address</th>
-                    <th>State</th>
-                    <th>Duty country</th>
-                    <th>Duty station</th>
-                    <th>Department</th>
-                    <th>Job title</th>
-                    <th>Reports to</th>
-                    <th>Appointment date</th>
-                    <th>Contract type</th>
-                    <th>Contract expiry</th>
-                    <th>Employee category</th>
-                    <th>Grade</th>
-                    <th>Basic salary</th>
-                    <th>Currency</th>
-                    <th>TIN No.</th>
-                    <th>Social security</th>
-                    <th>Social security No.</th>
-                    <th>Payroll Center</th>
-                    <th>Bank 1</th>
-                    <th>A/C 1</th>
-                    <th>Bank 1 %age</th>
-                    <th>Bank 2</th>
-                    <th>A/C 2</th>
-                    <th>Bank 2 %age</th>
-                    <th>Kin full name</th>
-                    <th>Kin phone no.</th>
-                    <th>Kin email</th>
-                    <th>Relationship</th>
-                    <th>DR A/C code</th>
-                    <th>CR A/C code</th>
-                    <th>Status</th>
+                    <th style="width:300px">Full name</th>
+                    <th style="width:300px">Date Of Birth</th>
+                    <th style="width:300px">Sex</th>
+                    <th style="width:300px">Marital status</th>
+                    <th style="width:300px">Mobile No.</th>
+                    <th style="width:300px">Email</th>
+                    <th style="width:300px">ID No.</th>
+                    <th style="width:300px">Agresso No.</th>
+                    <th style="width:300px">Passport</th>
+                    <th style="width:300px">Nationality</th>
+                    <th style="width:300px">Home address</th>
+                    <th style="width:300px">Residential address</th>
+                    <th style="width:300px">State</th>
+                    <th style="width:300px">Duty country</th>
+                    <th style="width:300px">Duty station</th>
+                    <th style="width:300px">Department</th>
+                    <th style="width:300px">Job title</th>
+                    <th style="width:300px">Reports to</th>
+                    <th style="width:300px">Appointment date</th>
+                    <th style="width:300px">Contract type</th>
+                    <th style="width:300px">Contract expiry</th>
+                    <th style="width:300px">Employee category</th>
+                    <th style="width:300px">Grade</th>
+                    <th style="width:300px">Basic salary</th>
+                    <th style="width:300px">Currency</th>
+                    <th style="width:300px">TIN No.</th>
+                    <th style="width:300px">Social security</th>
+                    <th style="width:300px">Social security No.</th>
+                    <th style="width:300px">Payroll Center</th>
+                    <th style="width:300px">Bank 1</th>
+                    <th style="width:300px">A/C 1</th>
+                    <th style="width:300px">Bank 1 %age</th>
+                    <th style="width:300px">Bank 2</th>
+                    <th style="width:300px">A/C 2</th>
+                    <th style="width:300px">Bank 2 %age</th>
+                    <th style="width:300px">Kin full name</th>
+                    <th style="width:300px">Kin phone no.</th>
+                    <th style="width:300px">Kin email</th>
+                    <th style="width:300px">Relationship</th>
+                    <th style="width:300px">DR A/C code</th>
+                    <th style="width:300px">CR A/C code</th>
+                    <th style="width:300px">Status</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for employee in object_list %}
+                 {% for employee in object_list %}
                     <tr>
                         <td>
                             <a href="{% url 'users:user-detail' pk=employee.pk %}">{{ employee.user.get_full_name }}</a>
