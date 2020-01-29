@@ -23,6 +23,7 @@
                 <th>NSIF No.</th>
                 <th>Name</th>
                 <th>Duty Station</th>
+                <th>Cost Centre</th>
                 <th>Job Title</th>
                 <th>Gross</th>
                 {% for staff in data|get_distinct_employee_set %}
@@ -45,6 +46,7 @@
                     <td>{{ staff.nhif_number }}</td>
                     <td>{{ staff.user.get_full_name }}</td>
                     <td>{{ staff.duty_station }}</td>
+                    <td>{{ staff.cost_centre }}</td>
                     <td>{{ staff.job_title }}</td>
                     {% with staff|report:period as report %}
                         <td>{{ report.gross_earning|intcomma }}</td>
@@ -63,7 +65,7 @@
             <tfoot>
             <tr>
                 <th></th>
-                <th colspan="5" class="font-weight-light text-info text-center">Total:</th>
+                <th colspan="6" class="font-weight-light text-info text-center">Total:</th>
                 <th></th>
                 <th></th>
                 <th></th>
