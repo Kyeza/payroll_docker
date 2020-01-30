@@ -551,7 +551,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
             payroll_period.created_by = request_user
             payroll_period.save()
 
-    users = payroll_center.employee_set.all()
+    users = payroll_center.employee_set.select_related('user').all()
     employees_in_period = set()
     if users.exists() and user is None:
         logger.critical(f'Adding Payroll center users for Period {payroll_period} to processor')
@@ -573,7 +573,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
 
     if user:
         period_processes = PayrollProcessors.objects \
-            .select_related('employee', 'earning_and_deductions_type', 'earning_and_deductions_category',
+            .select_related('employee', 'employee__user', 'earning_and_deductions_type', 'earning_and_deductions_category',
                             'employee__nationality', 'employee__grade', 'employee__duty_station',
                             'employee__duty_country',
                             'employee__department', 'employee__job_title', 'employee__line_manager',
@@ -586,7 +586,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.debug(f'Processors: {period_processes.count()}')
     else:
         period_processes = PayrollProcessors.objects \
-            .select_related('employee', 'earning_and_deductions_type', 'earning_and_deductions_category',
+            .select_related('employee', 'employee__user', 'earning_and_deductions_type', 'earning_and_deductions_category',
                             'employee__nationality', 'employee__grade', 'employee__duty_station',
                             'employee__duty_country',
                             'employee__department', 'employee__job_title', 'employee__line_manager',
@@ -645,15 +645,16 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
                         inst.save(update_fields=['amount'])
                 gross_earnings += inst.amount
 
-        basic_salary = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=1).first().amount
+        basic_salary = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=1).first().amount
+
+        arrears = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=11).first()
 
         # calculating NHIF
         logger.info(f'Processing for user {employee}: calculating NHIF')
         employee_nhif = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=32).first()
         if employee_nhif:
-            employee_nhif.amount = round(basic_salary * Decimal(nhif_ed_type.factor))
+            employee_nhif.amount = round((basic_salary + arrears) * Decimal(nhif_ed_type.factor))
             nhif_8 = employee_nhif.amount
             employee_nhif.save(update_fields=['amount'])
 
@@ -696,8 +697,6 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.info(f'Processing for user {employee}: updating Employer Pension')
         employer_pension = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=76).first()
-        arrears = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=11).first()
         if employer_pension:
             employer_pension.amount = (basic_salary + arrears.amount) / Decimal(12)
             employer_pension.save(update_fields=['amount'])

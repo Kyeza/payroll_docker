@@ -38,6 +38,27 @@
     <orderEntry type="library" name="R Skeletons" level="application" />
     <orderEntry type="library" name="Google App Engine SDK" level="project" />
     <orderEntry type="library" name="Google App Engine SDK" level="project" />
+    <orderEntry type="library" name="range_dates" level="application" />
+    <orderEntry type="library" name="jquery.dataTables_themeroller" level="application" />
+    <orderEntry type="library" name="jquery.dataTables" level="application" />
+    <orderEntry type="library" name="demo_table_jui" level="application" />
+    <orderEntry type="library" name="demo_table" level="application" />
+    <orderEntry type="library" name="demo_page" level="application" />
+    <orderEntry type="library" name="jquery-ui-1.10.0.custom" level="application" />
+    <orderEntry type="library" name="jquery-ui" level="application" />
+    <orderEntry type="library" name="jquery-2.0.3" level="application" />
+    <orderEntry type="library" name="jquery-3.4.1" level="application" />
+    <orderEntry type="library" name="popper" level="application" />
+    <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="pdfmake" level="application" />
+    <orderEntry type="library" name="vfs_fonts" level="application" />
+    <orderEntry type="library" name="datatables" level="application" />
+    <orderEntry type="library" name="jquery.datetimepicker.full" level="application" />
+    <orderEntry type="library" name="jquery.datetimepicker" level="application" />
+    <orderEntry type="library" name="all" level="application" />
+    <orderEntry type="library" name="dataTables.bootstrap" level="application" />
+    <orderEntry type="library" name="bootstrap-datepicker" level="application" />
+    <orderEntry type="library" name="jquery-1.12.4" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
@@ -46,8 +67,5 @@
         <option value="$MODULE_DIR$/Lib/site-packages/django/forms/templates" />
       </list>
     </option>
-  </component>
-  <component name="TestRunnerService">
-    <option name="PROJECT_TEST_RUNNER" value="Unittests" />
   </component>
 </module>

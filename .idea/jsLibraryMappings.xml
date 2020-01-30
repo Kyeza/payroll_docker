@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="JavaScriptLibraryMappings">
-    <file url="file://$PROJECT_DIR$" libraries="{bootstrap, datatables, jquery-3.3.1, jquery-3.4.0, jquery.dataTables, jquery.datetimepicker.full, pdfmake, popper, vfs_fonts}" />
+    <file url="file://$PROJECT_DIR$" libraries="{all, bootstrap, bootstrap-datepicker, dataTables.bootstrap, datatables, demo_page, demo_table, demo_table_jui, jquery-1.12.4, jquery-2.0.3, jquery-3.3.1, jquery-3.4.1, jquery-ui, jquery-ui-1.10.0.custom, jquery.dataTables, jquery.dataTables_themeroller, jquery.datetimepicker, jquery.datetimepicker.full, pdfmake, popper, range_dates, vfs_fonts}" />
   </component>
 </project>
