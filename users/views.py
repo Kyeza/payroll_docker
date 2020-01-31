@@ -654,7 +654,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         employee_nhif = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=32).first()
         if employee_nhif:
-            employee_nhif.amount = round((basic_salary + arrears) * Decimal(nhif_ed_type.factor))
+            employee_nhif.amount = round((basic_salary + arrears.amount) * Decimal(nhif_ed_type.factor))
             nhif_8 = employee_nhif.amount
             employee_nhif.save(update_fields=['amount'])
 
