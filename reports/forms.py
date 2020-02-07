@@ -46,10 +46,8 @@ class ReportGeneratorForm(forms.Form):
     payroll_center = forms.ModelChoiceField(queryset=PayrollCenter.objects.prefetch_related('payrollperiod_set').all(),
                                             widget=forms.Select())
     report_type = forms.ChoiceField(choices=REPORTS, widget=forms.Select())
-    start_year = forms.ChoiceField(choices=PAYROLL_YEARS, widget=forms.Select(), initial=_year)
-    end_year = forms.ChoiceField(choices=PAYROLL_YEARS, widget=forms.Select(), initial=_year)
-    start_month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(), initial=MONTHS[_month - 1][1])
-    end_month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(), initial=MONTHS[_month - 1][1])
+    year = forms.ChoiceField(choices=PAYROLL_YEARS, widget=forms.Select(), initial=_year)
+    month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(), initial=MONTHS[_month - 1][1])
 
 
 class ReconciliationReportGeneratorForm(forms.Form):
