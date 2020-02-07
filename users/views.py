@@ -648,12 +648,15 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         basic_salary = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=1).first().amount
 
+        arrears = period_processes.filter(employee=employee) \
+            .filter(earning_and_deductions_type_id=11).first()
+
         # calculating NHIF
         logger.info(f'Processing for user {employee}: calculating NHIF')
         employee_nhif = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=32).first()
         if employee_nhif:
-            employee_nhif.amount = round(basic_salary * Decimal(nhif_ed_type.factor))
+            employee_nhif.amount = round((basic_salary + arrears) * Decimal(nhif_ed_type.factor))
             nhif_8 = employee_nhif.amount
             employee_nhif.save(update_fields=['amount'])
 
@@ -696,8 +699,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.info(f'Processing for user {employee}: updating Employer Pension')
         employer_pension = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=76).first()
-        arrears = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=11).first()
+
         if employer_pension:
             employer_pension.amount = (basic_salary + arrears.amount) / Decimal(12)
             employer_pension.save(update_fields=['amount'])
