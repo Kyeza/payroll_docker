@@ -1,27 +1,25 @@
 import datetime
+import json
 import logging
-import time
 
-import weasyprint
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.mail import get_connection, EmailMultiAlternatives
 from django.db.models import Q
 from django.forms import formset_factory
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template.loader import render_to_string
 from django.urls import reverse
+from django.views.generic.list import ListView
 
+from payroll.models import EarningDeductionType
 from payroll.models import PayrollPeriod
 from reports.helpers.mailer import Mailer
 from support_data.forms import DeclinePayrollMessageForm
 from users.forms import EarningsProcessUpdateForm, DeductionsProcessUpdateForm
 from users.models import PayrollProcessors, Employee
 from .forms import ReportGeneratorForm, ReconciliationReportGeneratorForm
-from .models import ExTraSummaryReportInfo
-from payroll.models import EarningDeductionType
+from .models import ExTraSummaryReportInfo, NSSFReport
 
 logger = logging.getLogger('payroll')
 
@@ -50,7 +48,8 @@ def generate_summary_data(payroll_period, system_user):
         period_processes = PayrollProcessors.objects \
             .select_related('employee', 'earning_and_deductions_type', 'earning_and_deductions_category',
                             'employee__user', 'employee__job_title', 'employee__duty_station') \
-            .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
+            .filter(payroll_period_id=payroll_period.pk).filter(
+            employee__duty_station__in=assigned_user_locations).all() \
             .prefetch_related('employee__report', 'employee__report__payroll_period')
     employees_in_period = set()
 
@@ -137,7 +136,70 @@ def update_summary_report(request, pp, user):
     return render(request, 'reports/update_summary.html', context)
 
 
-def generate(payroll_period, report, system_user):
+def get_period_data(report, system_user, payroll_period, processors, assigned_user_locations, results):
+    if report == 'SUMMARY':
+        if system_user.is_superuser:
+            results[payroll_period] = PayrollProcessors.objects \
+                .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                'earning_and_deductions_type',
+                                'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                'employee__duty_country',
+                                'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                'employee__bank_2') \
+                .filter(payroll_period_id=payroll_period.pk).all() \
+                .prefetch_related('employee__report', 'employee__report__payroll_period').all()
+        else:
+            results[payroll_period] = PayrollProcessors.objects \
+                .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                'earning_and_deductions_type',
+                                'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                'employee__duty_country',
+                                'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                'employee__bank_2') \
+                .filter(payroll_period_id=payroll_period.pk).filter(
+                employee__duty_station__in=assigned_user_locations).all() \
+                .prefetch_related('employee__report', 'employee__report__payroll_period').all()
+    elif report == 'BANK' or report == 'CASH':
+        if system_user.is_superuser:
+            results[payroll_period] = PayrollProcessors.objects \
+                .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                'earning_and_deductions_type',
+                                'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                'employee__duty_country',
+                                'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                'employee__bank_2') \
+                .filter(payroll_period_id=payroll_period.pk).all() \
+                .prefetch_related('employee__report', 'employee__report__payroll_period') \
+                .filter(employee__payment_type=report).all()
+        else:
+            results[payroll_period] = PayrollProcessors.objects \
+                .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
+                                'earning_and_deductions_type',
+                                'earning_and_deductions_category', 'employee__user', 'employee__job_title',
+                                'employee__duty_country',
+                                'employee__duty_station', 'employee__currency', 'employee__bank_1',
+                                'employee__bank_2') \
+                .filter(payroll_period_id=payroll_period.pk).filter(
+                employee__duty_station__in=assigned_user_locations).all() \
+                .prefetch_related('employee__report', 'employee__report__payroll_period') \
+                .filter(employee__payment_type=report).all()
+    elif report == 'LEGER_EXPORT':
+        results[payroll_period] = processors.exclude(amount=0)
+    elif report == 'LST':
+        p = processors.filter(earning_and_deductions_type_id=65).all()
+        results[payroll_period] = p
+    elif report == 'NSSF':
+        p = processors.filter(
+            Q(earning_and_deductions_type_id=32) | Q(earning_and_deductions_type_id=31)).all()
+        results[payroll_period] = p
+    elif report == 'PAYE':
+        p = processors.filter(earning_and_deductions_type_id=61).all()
+        earnings = processors.filter(earning_and_deductions_type__ed_category=1)
+        results['earnings'] = earnings
+        results[payroll_period] = p
+
+
+def generate(payroll_period_ids, report, system_user):
     assigned_user_locations = []
     if not system_user.is_superuser:
         assigned_user_locations = list(system_user.employee.assigned_locations.all())
@@ -150,7 +212,7 @@ def generate(payroll_period, report, system_user):
                             'earning_and_deductions_category', 'employee__user', 'employee__job_title',
                             'employee__duty_country',
                             'employee__duty_station', 'employee__currency', 'employee__bank_1', 'employee__bank_2') \
-            .filter(payroll_period_id=payroll_period.pk).all() \
+            .filter(payroll_period_id__in=payroll_period_ids).all() \
             .prefetch_related('employee__report', 'employee__report__payroll_period').all()
     else:
         processors = PayrollProcessors.objects \
@@ -159,66 +221,16 @@ def generate(payroll_period, report, system_user):
                             'earning_and_deductions_category', 'employee__user', 'employee__job_title',
                             'employee__duty_country',
                             'employee__duty_station', 'employee__currency', 'employee__bank_1', 'employee__bank_2') \
-            .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
-            .prefetch_related('employee__report', 'employee__report__payroll_period').all()
-    if payroll_period:
-        if report == 'SUMMARY':
-            if system_user.is_superuser:
-                results[payroll_period] = PayrollProcessors.objects \
-                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
-                                    'earning_and_deductions_type',
-                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
-                                    'employee__duty_country',
-                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
-                                    'employee__bank_2') \
-                    .filter(payroll_period_id=payroll_period.pk).all() \
-                    .prefetch_related('employee__report', 'employee__report__payroll_period').all()
-            else:
-                results[payroll_period] = PayrollProcessors.objects \
-                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
-                                    'earning_and_deductions_type',
-                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
-                                    'employee__duty_country',
-                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
-                                    'employee__bank_2') \
-                    .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
-                    .prefetch_related('employee__report', 'employee__report__payroll_period').all()
-        elif report == 'BANK' or report == 'CASH':
-            if system_user.is_superuser:
-                results[payroll_period] = PayrollProcessors.objects \
-                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
-                                    'earning_and_deductions_type',
-                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
-                                    'employee__duty_country',
-                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
-                                    'employee__bank_2') \
-                    .filter(payroll_period_id=payroll_period.pk).all() \
-                    .prefetch_related('employee__report', 'employee__report__payroll_period') \
-                    .filter(employee__payment_type=report).all()
-            else:
-                results[payroll_period] = PayrollProcessors.objects \
-                    .select_related('employee', 'payroll_period', 'payroll_period__payroll_center',
-                                    'earning_and_deductions_type',
-                                    'earning_and_deductions_category', 'employee__user', 'employee__job_title',
-                                    'employee__duty_country',
-                                    'employee__duty_station', 'employee__currency', 'employee__bank_1',
-                                    'employee__bank_2') \
-                    .filter(payroll_period_id=payroll_period.pk).filter(employee__duty_station__in=assigned_user_locations).all() \
-                    .prefetch_related('employee__report', 'employee__report__payroll_period') \
-                    .filter(employee__payment_type=report).all()
-        elif report == 'LEGER_EXPORT':
-            results[payroll_period] = processors.exclude(amount=0)
-        elif report == 'LST':
-            p = processors.filter(earning_and_deductions_type_id=65).all()
-            results[payroll_period] = p
-        elif report == 'NSSF':
-            p = processors.filter(Q(earning_and_deductions_type_id=32) | Q(earning_and_deductions_type_id=31)).all()
-            results[payroll_period] = p
-        elif report == 'PAYE':
-            p = processors.filter(earning_and_deductions_type_id=61).all()
-            earnings = processors.filter(earning_and_deductions_type__ed_category=1)
-            results['earnings'] = earnings
-            results[payroll_period] = p
+            .filter(payroll_period_id__in=payroll_period_ids).filter(employee__duty_station__in=assigned_user_locations) \
+            .all().prefetch_related('employee__report', 'employee__report__payroll_period').all()
+    if payroll_period_ids:
+        periods_data = PayrollPeriod.objects.filter(id__in=payroll_period_ids).select_related('payroll_center')
+        if periods_data.count() > 1:
+            for payroll_period in periods_data.iterator():
+                get_period_data(report, system_user, payroll_period, processors, assigned_user_locations, results)
+        else:
+            payroll_period = periods_data.first()
+            get_period_data(report, system_user, payroll_period, processors, assigned_user_locations, results)
 
     logger.debug(f'{report} report --> results: {results}')
     return results
@@ -250,6 +262,16 @@ def generate_leger_export(results, period):
     return data
 
 
+def months_from(start_month, end_month):
+    MONTHS = {'JANUARY': 0, 'FEBRUARY': 1, 'MARCH': 2, 'APRIL': 3, 'MAY': 4, 'JUNE': 5, 'JULY': 6, 'AUGUST': 7,
+              'SEPTEMBER': 8, 'OCTOBER': 9, 'NOVEMBER': 10, 'DECEMBER': 11}
+    month_str = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER',
+                 'NOVEMBER', 'DECEMBER']
+    first_m = MONTHS[start_month]
+    last_m = MONTHS[end_month]
+    return [month_str[month] for month in range(first_m, last_m + 1)]
+
+
 @login_required
 @permission_required(('payroll.process_payrollperiod',), raise_exception=True)
 def generate_reports(request):
@@ -260,65 +282,85 @@ def generate_reports(request):
             payroll_center = form.cleaned_data.get('payroll_center')
             report = form.cleaned_data.get('report_type')
             year = form.cleaned_data.get('year')
-            selected_month = form.cleaned_data.get('month')
-            payroll_period = payroll_center.payrollperiod_set.select_related('payroll_center', 'created_by') \
-                .filter(year=year).filter(month=selected_month).first()
+            start_month = form.cleaned_data.get('start_month')
+            end_month = form.cleaned_data.get('end_month')
+            months_range = months_from(start_month, end_month)
+            if months_range:
+                payroll_period_ids = [period['id'] for period in list(payroll_center.payrollperiod_set
+                                                                      .select_related('payroll_center', 'created_by')
+                                                                      .filter(year=year).filter(month__in=months_range)
+                                                                      .values('id'))]
 
-            if payroll_period:
-                extra_reports = ExTraSummaryReportInfo.objects.select_related('employee') \
-                    .filter(payroll_period_id=payroll_period.pk).all()
-                if extra_reports.exists():
-                    logger.info(f'generating report data for {selected_month}-{year}')
-
-                    results = generate(payroll_period, report, system_user)
-
-                    earnings = None
-                    if 'earnings' in results.keys():
-                        earnings = results['earnings']
-                        del results['earnings']
-
-                    if report == 'LEGER_EXPORT':
-                        results = generate_leger_export(results, payroll_period)
-
-                    context = {
-                        'title': report.capitalize() + ' Report',
-                        'report': report,
-                        'results': results,
-                    }
-
-                    if report == 'LEGER_EXPORT':
-                        NUM_MONTHS = {
-                            'JANUARY': 1,
-                            'FEBRUARY': 2,
-                            'MARCH': 3,
-                            'APRIL': 4,
-                            'MAY': 5,
-                            'JUNE': 6,
-                            'JULY': 7,
-                            'AUGUST': 8,
-                            'SEPTEMBER': 9,
-                            'OCTOBER': 10,
-                            'NOVEMBER': 11,
-                            'DECEMBER': 12
-                        }
-                        context['trans_date'] = datetime.datetime(int(year), NUM_MONTHS[payroll_period.month], 28) \
-                            .strftime("%d/%m/%Y")
-
-                    if report == 'PAYE':
-                        context['earnings'] = earnings
-                        context['title'] = 'PIT'
-
+                if payroll_period_ids:
                     if report == 'NSSF':
-                        context['title'] = 'NSIF'
+                        return redirect('reports:social_security_report', periods=payroll_period_ids)
 
-                    return render(request, 'reports/generated_report.html', context)
+                    extra_reports = ExTraSummaryReportInfo.objects.select_related('employee') \
+                        .filter(payroll_period_id__in=payroll_period_ids).all()
+                    if extra_reports.exists():
+                        logger.info(f'generating report data between {start_month} and {end_month} for {year}') \
+                            if not (start_month == end_month) \
+                            else logger.info(f'generating report data between {start_month} and {end_month} for {year}')
+
+                        results = generate(payroll_period_ids, report, system_user)
+
+                        earnings = None
+                        if 'earnings' in results.keys():
+                            earnings = results['earnings']
+                            del results['earnings']
+
+                        if report == 'LEGER_EXPORT':
+                            payroll_period = PayrollPeriod.objects.get(id=payroll_period_ids[0]).select_related(
+                                'payroll_center')
+                            results = generate_leger_export(results, payroll_period)
+
+                        context = {
+                            'title': report.capitalize() + ' Report',
+                            'report': report,
+                            'results': results,
+                            'periods': list(results.keys())
+                        }
+
+                        if report == 'LEGER_EXPORT':
+                            payroll_period = PayrollPeriod.objects.get(id=payroll_period_ids[0]).select_related(
+                                'payroll_center')
+                            NUM_MONTHS = {
+                                'JANUARY': 1,
+                                'FEBRUARY': 2,
+                                'MARCH': 3,
+                                'APRIL': 4,
+                                'MAY': 5,
+                                'JUNE': 6,
+                                'JULY': 7,
+                                'AUGUST': 8,
+                                'SEPTEMBER': 9,
+                                'OCTOBER': 10,
+                                'NOVEMBER': 11,
+                                'DECEMBER': 12
+                            }
+                            context['trans_date'] = datetime.datetime(int(year), NUM_MONTHS[payroll_period.month], 28) \
+                                .strftime("%d/%m/%Y")
+
+                        if report == 'PAYE':
+                            context['earnings'] = earnings
+                            context['title'] = 'PIT'
+
+                        if report == 'NSSF':
+                            context['title'] = 'NSIF'
+
+                        return render(request, 'reports/generated_report.html', context)
+                    else:
+                        logger.error(f'Periods ({payroll_period_ids}) not processed yet!')
+                        messages.warning(request, f'Periods ({payroll_period_ids}) has/have not been processed yet!')
+                        return redirect('reports:generate-reports')
                 else:
-                    logger.error(f'PayrollPeriod ({payroll_period}) not processed yet!')
-                    messages.warning(request, f'PayrollPeriod ({payroll_period}) has not been processed yet!')
+                    logger.error(f'PayrollPeriod ({months_range}) does not exist!')
+                    messages.warning(request, f'Reports for {months_range} don\'t exist.')
                     return redirect('reports:generate-reports')
             else:
-                logger.error(f'PayrollPeriod ({selected_month}) does not exist!')
-                messages.warning(request, f'Reports for PayrollPeriod({selected_month}) don\'t exist.')
+                logger.error(f'Empty months range')
+                messages.warning(request,
+                                 f'Please make a valid month\'s selection, \nsecond month can\'t be earlier than the first one.')
                 return redirect('reports:generate-reports')
     else:
         form = ReportGeneratorForm()
@@ -695,3 +737,28 @@ def generate_reconciliation_report(request):
     }
 
     return render(request, 'reports/generate_reconciliation_report.html', context)
+
+
+def social_security_report(request, periods):
+    periods_list = json.loads(periods)
+
+    periods = PayrollPeriod.objects.filter(id__in=periods_list).select_related('payroll_center').all()
+    payroll_centre = periods.first().payroll_center
+    if len(periods_list) < 1:
+        title = f'NSIF REPORT FOR PERIOD {periods.first().month}, {periods.first().year}'
+    else:
+        title = f'NSIF REPORT FOR PERIOD FROM {periods.first().month} TO {periods.last().month} , {periods.first().year}'
+
+    nssfreport_list = NSSFReport.objects.filter(payroll_period_id__in=periods_list).select_related(
+        'user_extra_report').all() \
+        .prefetch_related('earnings_and_deductions', 'earnings_and_deductions__earning_and_deductions_type',
+                          'earnings_and_deductions__earning_and_deductions_type__payrollprocessors_set',
+                          'payroll_period')
+
+    context = {
+        'title': title,
+        'payroll_centre': payroll_centre,
+        'nssfreport_list': nssfreport_list,
+    }
+
+    return render(request, 'reports/nssfreport_list.html', context)

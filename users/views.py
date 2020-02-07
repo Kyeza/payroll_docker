@@ -30,6 +30,7 @@ from users.models import Employee, PayrollProcessors, CostCentre, SOF, DEA, Empl
 from .forms import StaffCreationForm, ProfileCreationForm, StaffUpdateForm, ProfileUpdateForm, \
     EmployeeApprovalForm, TerminationForm, EmployeeProjectForm, LoginForm, ProfileGroupForm, EmployeeMovementForm, \
     EnumerationsMovementForm
+from users.tasks import process_nssf_nsif_reports
 
 logger = logging.getLogger('payroll')
 
@@ -803,6 +804,9 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
             logger.info(f'Successfully processed {employee} Payroll Period')
 
     logger.info(f'Finished processing {response}')
+
+    if user is None:
+        process_nssf_nsif_reports.delay(payroll_period.id)
 
     if method == 'POST':
         logger.debug(f'Displaying report {response}')

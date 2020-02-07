@@ -11,4 +11,5 @@ urlpatterns = [
     path('reconciliation_report/', views.generate_reconciliation_report, name='generate_reconciliation_report'),
     path('generate_reports/<int:pp>/<int:user>', views.generate_payslip_report, name='generate-payslip'),
     path('email/payslips/', views.send_mass_mail, name='email-payslip'),
+    path('reports/social_security/<periods>', views.social_security_report, name='social_security_report'),
 ]
