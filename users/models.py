@@ -239,7 +239,7 @@ class PayrollProcessors(models.Model):
 
 
 class TerminatedEmployees(models.Model):
-    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, primary_key=True)
+    employee = models.OneToOneField(Employee, on_delete=models.CASCADE, primary_key=True, related_name='termination_report')
     notice_date = models.DateField(default=timezone.now, null=True, blank=True)
     exit_date = models.DateField(default=timezone.now, null=True, blank=True)
     days_given = models.PositiveIntegerField(null=True, blank=True)
