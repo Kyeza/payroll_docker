@@ -106,14 +106,14 @@
                     function setUp(response) {
                         working_days = parseFloat(response['working_days']);
                         amount_from.val(response['amount']);
-                        let newAmt = (parseFloat(response['working_days']) / parseFloat(response['working_days'])) * parseFloat(response['amount']);
+                        let newAmt = (parseFloat(response['working_days']) / 22.0) * parseFloat(response['amount']);
                         hour_input.val(response['working_days']);
                         amount_to.val(newAmt);
                     }
                 });
                 hour_input.on("keyup", function () {
                     let currentValue = $(this).val();
-                    let newAmt = (currentValue / working_days) * amount_from.val();
+                    let newAmt = (currentValue / 22.0) * amount_from.val();
                     amount_to.val(newAmt);
                 });
                 div_working_days.css("display", "block");
