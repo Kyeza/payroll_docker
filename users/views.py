@@ -676,7 +676,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         else:
             tax = taxable_gross_earnings - rates[0].actual_usd
             amount = tax - rates[1].actual_usd
-            if amount > rates[1].actual_usd:
+            if amount >= rates[1].actual_usd:
                 amount = amount * Decimal(rates[2].tax_rate)
             pit = amount + rates[1].actual_usd_taxable_amount
 
