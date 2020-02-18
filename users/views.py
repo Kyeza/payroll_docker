@@ -1268,8 +1268,7 @@ def load_earnings_current_amount(request):
     employee_period_processors = period_processors.filter(employee_id=employee.pk)
     if employee_period_processors:
         if parameter_id == 78:
-            response = employee_period_processors.filter(earning_and_deductions_type_id=1).values(
-                'amount').first()
+            response = employee.basic_salary
             working_days = employee_period_processors.filter(earning_and_deductions_type_id=78).values(
                 'amount').first()
             response['working_days'] = working_days['amount']
