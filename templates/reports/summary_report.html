@@ -90,7 +90,7 @@
                             <td>{{ report.analysis }}</td>
                             <td>{{ report.job_title }}</td>
                             <td>{{ staff.basic_salary }}</td>
-                            <td>{{ data|user_working_days:staff }}</td>
+                            <td>{{ period_processes|user_working_days:staff }}</td>
                             {% with period_processes|category_display:1|user_data:staff as user_earnings %}
                                 {% for earning in user_earnings %}
                                     {% for k, amount in earning.items %}
