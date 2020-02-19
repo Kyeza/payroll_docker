@@ -29,6 +29,13 @@ def user_data(processors, staff):
 
 
 @register.filter
+def user_working_days(processors, staff):
+    data = processors.filter(employee_id=staff.pk).filter(earning_and_deductions_type_id=78).values('amount')
+
+    return list(data)[0]['amount']
+
+
+@register.filter
 def user_data_headings(processors, staff):
     return processors.filter(employee_id=staff.pk).values('earning_and_deductions_type__ed_type')\
         .order_by('earning_and_deductions_type__display_number').all()
