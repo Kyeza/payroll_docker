@@ -670,7 +670,12 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
             rates.append(rate)
 
         for i, rate in enumerate(rates):
-            if int(taxable_gross_earnings) <= int(rate.actual_usd) or i == len(rates) - 1:
+            if i == len(rates) - 1:
+                rate_before = rates[i - 1]
+                taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
+                pit = taxable_gross_earnings + rate_before.actual_usd_taxable_amount
+                break
+            elif int(taxable_gross_earnings) <= int(rate.actual_usd):
                 rate_before = rates[i-1]
                 taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
                 pit = taxable_gross_earnings + rate_before.actual_usd_taxable_amount
