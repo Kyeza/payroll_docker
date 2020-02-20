@@ -612,12 +612,12 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.error(f'No Employees in the system')
 
     logger.info(f'Calculating tax rates according to current dollar rate ({process_with_rate})')
-    current_tax_rates = SudaneseTaxRates.objects.all()
-    if current_tax_rates.exists():
+    current_tax_rates = list(SudaneseTaxRates.objects.all())
+    if current_tax_rates:
         for i, tax_bracket in enumerate(current_tax_rates):
-            if i < 2:
+            if i < len(current_tax_rates) - 1:
                 tax_bracket.actual_usd = round(tax_bracket.upper_ssp_bound / Decimal(process_with_rate))
-            if i == 1:
+            if 0 < i < len(current_tax_rates) - 1:
                 tax_bracket.actual_usd_taxable_amount = round(Decimal(tax_bracket.tax_rate) * tax_bracket.actual_usd)
             tax_bracket.save()
     nhif_ed_type = EarningDeductionType.objects.get(pk=32)
@@ -647,8 +647,6 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
 
         basic_salary = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=1).first().amount
 
-        arrears = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=11).first()
-
         arrears = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=11).first()
 
@@ -668,17 +666,17 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.info(f'Processing for user {employee}: calculating PIT')
 
         rates = []
-        for rate in current_tax_rates.iterator():
+        for rate in current_tax_rates:
             rates.append(rate)
 
-        if taxable_gross_earnings < rates[0].actual_usd:
-            pit = 0
-        else:
-            tax = taxable_gross_earnings - rates[0].actual_usd
-            amount = tax - rates[1].actual_usd
-            if amount >= rates[1].actual_usd:
-                amount = amount * Decimal(rates[2].tax_rate)
-            pit = amount + rates[1].actual_usd_taxable_amount
+        for i, rate in enumerate(rates):
+            if int(taxable_gross_earnings) <= int(rate.actual_usd):
+                rate_before = rates[i-1]
+                taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
+                pit = taxable_gross_earnings + rate_before.actual_usd_taxable_amount
+                break
+            else:
+                taxable_gross_earnings = taxable_gross_earnings - rate.actual_usd
 
         # update PIT if exists in payroll center
         logger.info(f'Processing for user {employee}: updating PIT')
