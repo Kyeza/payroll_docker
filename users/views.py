@@ -616,7 +616,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
     if current_tax_rates:
         for i, tax_bracket in enumerate(current_tax_rates):
             if i < len(current_tax_rates) - 1:
-                tax_bracket.actual_usd = round(tax_bracket.upper_ssp_bound / Decimal(process_with_rate))
+                tax_bracket.actual_usd = round((tax_bracket.upper_ssp_bound - tax_bracket.lower_ssp_bound) / Decimal(process_with_rate))
             if 0 < i < len(current_tax_rates) - 1:
                 tax_bracket.actual_usd_taxable_amount = round(Decimal(tax_bracket.tax_rate) * tax_bracket.actual_usd)
             tax_bracket.save()
@@ -669,19 +669,23 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         for rate in current_tax_rates:
             rates.append(rate)
 
+        accumulated_actual_usd_amounts = []
         for i, rate in enumerate(rates):
             if i == len(rates) - 1:
-                rate_before = rates[i - 1]
                 taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
-                pit = taxable_gross_earnings + rate_before.actual_usd_taxable_amount
+                pit = taxable_gross_earnings + \
+                      sum(accumulated_actual_usd_amounts) if accumulated_actual_usd_amounts else 0
                 break
             elif int(taxable_gross_earnings) <= int(rate.actual_usd):
                 rate_before = rates[i-1]
                 taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
-                pit = taxable_gross_earnings + rate_before.actual_usd_taxable_amount
+                pit = taxable_gross_earnings + \
+                      sum(accumulated_actual_usd_amounts) if accumulated_actual_usd_amounts else 0
                 break
             else:
                 taxable_gross_earnings = taxable_gross_earnings - rate.actual_usd
+                if rate.actual_usd_taxable_amount is not None:
+                    accumulated_actual_usd_amounts.append(rate.actual_usd_taxable_amount)
 
         # update PIT if exists in payroll center
         logger.info(f'Processing for user {employee}: updating PIT')
