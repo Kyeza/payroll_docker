@@ -453,7 +453,7 @@ class RecruitedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
             assigned_user_locations = list(self.request.user.employee.assigned_locations.all())
             return Employee.objects.select_related('user', 'department', 'job_title') \
                 .filter(employment_status='Recruit').order_by('-appointment_date')\
-                .filter(duty_station__in=assigned_user_locations).iterator().iterator()
+                .filter(duty_station__in=assigned_user_locations).iterator()
 
 
 class ApprovedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -500,7 +500,7 @@ class ChangeGroupEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, L
                                 'job_title',
                                 'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2', 'category',
                                 'currency', 'kin_relationship', 'district') \
-                .filter(employment_status='Approved').filter(duty_station__in=assigned_user_locations).iterator().iterator()
+                .filter(employment_status='Approved').filter(duty_station__in=assigned_user_locations).iterator()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
