@@ -727,9 +727,18 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
 
         # calculating total deductions from deductions
         logger.info(f'Processing for user {employee}: calculating total deductions from deductions')
-        if tx_data_ded.exists():
-            for inst in tx_data_ded.iterator():
-                total_deductions += inst.amount
+        try:
+            if tx_data_ded.exists():
+                for inst in tx_data_ded.iterator():
+                    if inst.amount:
+                        total_deductions += inst.amount
+                    else:
+                        inst.amount = 0
+                        inst.save()
+                        total_deductions += inst.amount
+
+        except Exception as e:
+            logger.info(f'error: {e}')
 
         # calculating total deductions from statutory deductions
         logger.info(f'Processing for user {employee}: calculating total deductions from statutory deductions')
