@@ -1404,7 +1404,7 @@ def approve_employee_movement(request, movement_id):
             period_processor.amount = new_amount
             period_processor.save(update_fields=['amount'])
         elif movement.earnings.id == 8:
-            period_processor.amount += Decimal(str(round(float(movement.move_to))))
+            period_processor.amount = Decimal(str(round(float(movement.move_to))))
             period_processor.save(update_fields=['amount'])
         else:
             period_processor.amount = Decimal(movement.move_to)
