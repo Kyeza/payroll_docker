@@ -1447,11 +1447,8 @@ def load_overtime_factor(request):
         factor = EarningDeductionType.objects.get(pk=19).factor
 
     basic_salary = period_processors.filter(earning_and_deductions_type_id=1).first().amount
-    current_overtime = period_processors.filter(earning_and_deductions_type_id=8).first().amount
 
     overtime_amount = (basic_salary / Decimal(176)) * Decimal(factor) * Decimal(hours)
-
-    overtime_amount += current_overtime
 
     response = {"overtime_amount": str(round(overtime_amount, 2))}
 
