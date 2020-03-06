@@ -168,8 +168,8 @@ class PayrollApprover (models.Model):
 
 
 class SudaneseTaxRates(models.Model):
-    lower_ssp_bound = models.DecimalField(max_digits=7, decimal_places=2)
-    upper_ssp_bound = models.DecimalField(max_digits=7, decimal_places=2)
+    lower_ssp_bound = models.DecimalField(max_digits=12, decimal_places=2)
+    upper_ssp_bound = models.DecimalField(max_digits=12, decimal_places=2)
     tax_rate = models.FloatField()
-    actual_usd = models.DecimalField(max_digits=7, decimal_places=2, null=True)
-    actual_usd_taxable_amount = models.DecimalField(max_digits=7, decimal_places=2, null=True)
+    actual_usd = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    actual_usd_taxable_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True)

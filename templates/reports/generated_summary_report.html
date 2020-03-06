@@ -39,7 +39,9 @@
                 <th>Employee Names</th>
                 <th>Analysis</th>
                 <th>Job title</th>
-                <th>Basic Pay</th>
+                <th>ORG Basic Pay</th>
+                <th>Working days</th>
+                <th>New Basic Pay</th>
                 <th>Arrears</th>
                 <th>Overtime</th>
                 <th>Acting Allowance</th>
@@ -69,6 +71,8 @@
                         </td>
                         <td>{{ report.analysis }}</td>
                         <td>{{ report.job_title }}</td>
+                        <td>{{ staff.basic_salary }}</td>
+                        <td>{{ data|user_working_days:staff }}</td>
                         {% with data|category_display:1|user_data:staff as user_earnings %}
                             {% for earning in user_earnings %}
                                 {% for k, amount in earning.items %}
@@ -95,6 +99,8 @@
             <tr>
                 <th></th>
                 <th colspan="6" class="font-weight-light text-info text-center">Total:</th>
+                <th></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>

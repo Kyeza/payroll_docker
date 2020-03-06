@@ -11,7 +11,7 @@
             <div class="form-group">
                 {{ form|crispy }}
                 <button class="btn btn-success" type="submit">SUBMIT</button>
-                <a class="btn btn-danger" href="{% url 'users:employee_movements_changelist' %}">CANCEL</a>
+                <a class="btn btn-danger" href="{% url 'users:employee_movements_enums' %}">CANCEL</a>
             </div>
         </form>
     </div>
@@ -105,15 +105,18 @@
 
                     function setUp(response) {
                         working_days = parseFloat(response['working_days']);
+                        console.log("working days: " + working_days);
                         amount_from.val(response['amount']);
-                        let newAmt = (parseFloat(response['working_days']) / parseFloat(response['working_days'])) * parseFloat(response['amount']);
+                        console.log("basic salary: " + response['amount']);
+                        let newAmt = (parseFloat(response['working_days']) / 22.0) * parseFloat(response['amount']);
                         hour_input.val(response['working_days']);
+                        console.log("New amount: " + newAmt);
                         amount_to.val(newAmt);
                     }
                 });
                 hour_input.on("keyup", function () {
                     let currentValue = $(this).val();
-                    let newAmt = (currentValue / working_days) * amount_from.val();
+                    let newAmt = (currentValue / 22.0) * amount_from.val();
                     amount_to.val(newAmt);
                 });
                 div_working_days.css("display", "block");

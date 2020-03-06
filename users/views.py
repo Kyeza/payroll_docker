@@ -454,7 +454,7 @@ class RecruitedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
             assigned_user_locations = list(self.request.user.employee.assigned_locations.all())
             return Employee.objects.select_related('user', 'department', 'job_title') \
                 .filter(employment_status='Recruit').order_by('-appointment_date')\
-                .filter(duty_station__in=assigned_user_locations).iterator().iterator()
+                .filter(duty_station__in=assigned_user_locations).iterator()
 
 
 class ApprovedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -501,7 +501,7 @@ class ChangeGroupEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, L
                                 'job_title',
                                 'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2', 'category',
                                 'currency', 'kin_relationship', 'district') \
-                .filter(employment_status='Approved').filter(duty_station__in=assigned_user_locations).iterator().iterator()
+                .filter(employment_status='Approved').filter(duty_station__in=assigned_user_locations).iterator()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(object_list=object_list, **kwargs)
@@ -613,12 +613,12 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.error(f'No Employees in the system')
 
     logger.info(f'Calculating tax rates according to current dollar rate ({process_with_rate})')
-    current_tax_rates = SudaneseTaxRates.objects.all()
-    if current_tax_rates.exists():
+    current_tax_rates = list(SudaneseTaxRates.objects.all())
+    if current_tax_rates:
         for i, tax_bracket in enumerate(current_tax_rates):
-            if i < 2:
-                tax_bracket.actual_usd = round(tax_bracket.upper_ssp_bound / Decimal(process_with_rate))
-            if i == 1:
+            if i < len(current_tax_rates) - 1:
+                tax_bracket.actual_usd = round((tax_bracket.upper_ssp_bound - tax_bracket.lower_ssp_bound) / Decimal(process_with_rate))
+            if 0 < i < len(current_tax_rates) - 1:
                 tax_bracket.actual_usd_taxable_amount = round(Decimal(tax_bracket.tax_rate) * tax_bracket.actual_usd)
             tax_bracket.save()
     nhif_ed_type = EarningDeductionType.objects.get(pk=32)
@@ -648,7 +648,8 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
 
         basic_salary = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=1).first().amount
 
-        arrears = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=11).first()
+        arrears = period_processes.filter(employee=employee) \
+            .filter(earning_and_deductions_type_id=11).first()
 
         # calculating NHIF
         logger.info(f'Processing for user {employee}: calculating NHIF')
@@ -666,17 +667,26 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         logger.info(f'Processing for user {employee}: calculating PIT')
 
         rates = []
-        for rate in current_tax_rates.iterator():
+        for rate in current_tax_rates:
             rates.append(rate)
 
-        if taxable_gross_earnings < rates[0].actual_usd:
-            pit = 0
-        else:
-            tax = taxable_gross_earnings - rates[0].actual_usd
-            amount = tax - rates[1].actual_usd
-            if amount > rates[1].actual_usd:
-                amount = amount * Decimal(rates[2].tax_rate)
-            pit = amount + rates[1].actual_usd_taxable_amount
+        accumulated_actual_usd_amounts = []
+        for i, rate in enumerate(rates):
+            if i == len(rates) - 1:
+                taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
+                pit = taxable_gross_earnings + \
+                      sum(accumulated_actual_usd_amounts) if accumulated_actual_usd_amounts else 0
+                break
+            elif int(taxable_gross_earnings) <= int(rate.actual_usd):
+                rate_before = rates[i-1]
+                taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
+                pit = taxable_gross_earnings + \
+                      sum(accumulated_actual_usd_amounts) if accumulated_actual_usd_amounts else 0
+                break
+            else:
+                taxable_gross_earnings = taxable_gross_earnings - rate.actual_usd
+                if rate.actual_usd_taxable_amount is not None:
+                    accumulated_actual_usd_amounts.append(rate.actual_usd_taxable_amount)
 
         # update PIT if exists in payroll center
         logger.info(f'Processing for user {employee}: updating PIT')
@@ -707,7 +717,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
         employee_nhif_17_processor = period_processes.filter(employee=employee) \
             .filter(earning_and_deductions_type_id=31).first()
         if employee_nhif_17_processor:
-            employee_nhif_17_processor.amount = gross_earnings * Decimal(nhif_ed_type_17.factor)
+            employee_nhif_17_processor.amount = round((basic_salary + arrears.amount) * Decimal(nhif_ed_type_17.factor))
             nhif_17 = employee_nhif_17_processor.amount
             employee_nhif_17_processor.save(update_fields=['amount'])
 
@@ -718,9 +728,18 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
 
         # calculating total deductions from deductions
         logger.info(f'Processing for user {employee}: calculating total deductions from deductions')
-        if tx_data_ded.exists():
-            for inst in tx_data_ded.iterator():
-                total_deductions += inst.amount
+        try:
+            if tx_data_ded.exists():
+                for inst in tx_data_ded.iterator():
+                    if inst.amount:
+                        total_deductions += inst.amount
+                    else:
+                        inst.amount = 0
+                        inst.save()
+                        total_deductions += inst.amount
+
+        except Exception as e:
+            logger.info(f'error: {e}')
 
         # calculating total deductions from statutory deductions
         logger.info(f'Processing for user {employee}: calculating total deductions from statutory deductions')
@@ -1269,8 +1288,7 @@ def load_earnings_current_amount(request):
     employee_period_processors = period_processors.filter(employee_id=employee.pk)
     if employee_period_processors:
         if parameter_id == 78:
-            response = employee_period_processors.filter(earning_and_deductions_type_id=1).values(
-                'amount').first()
+            response['amount'] = employee.basic_salary
             working_days = employee_period_processors.filter(earning_and_deductions_type_id=78).values(
                 'amount').first()
             response['working_days'] = working_days['amount']
@@ -1390,7 +1408,7 @@ def approve_employee_movement(request, movement_id):
             period_processor.amount = new_amount
             period_processor.save(update_fields=['amount'])
         elif movement.earnings.id == 8:
-            period_processor.amount += Decimal(str(round(float(movement.move_to))))
+            period_processor.amount = Decimal(str(round(float(movement.move_to))))
             period_processor.save(update_fields=['amount'])
         else:
             period_processor.amount = Decimal(movement.move_to)
@@ -1433,11 +1451,8 @@ def load_overtime_factor(request):
         factor = EarningDeductionType.objects.get(pk=19).factor
 
     basic_salary = period_processors.filter(earning_and_deductions_type_id=1).first().amount
-    current_overtime = period_processors.filter(earning_and_deductions_type_id=8).first().amount
 
     overtime_amount = (basic_salary / Decimal(176)) * Decimal(factor) * Decimal(hours)
-
-    overtime_amount += current_overtime
 
     response = {"overtime_amount": str(round(overtime_amount, 2))}
 

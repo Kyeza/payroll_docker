@@ -606,7 +606,7 @@ def generate_reconciliation_report(request):
                     logger.info(f'Getting user Extra reports for {employee}')
                     period_one_extra_data = ExTraSummaryReportInfo.objects.filter(
                         payroll_period=period_one).filter(employee=employee) \
-                        .values_list('gross_earning', 'total_deductions', 'net_pay').firs()
+                        .values('gross_earning', 'total_deductions', 'net_pay').first()
 
                     # earnings reconciliation
                     logger.info(f'Getting user earnings processors for {employee}')
@@ -668,7 +668,7 @@ def generate_reconciliation_report(request):
                     logger.info(f'Getting user Extra reports for {employee}')
                     period_two_extra_data = ExTraSummaryReportInfo.objects.filter(
                         payroll_period=period_two).filter(employee=employee) \
-                        .values_list('gross_earning', 'total_deductions', 'net_pay').first()
+                        .values('gross_earning', 'total_deductions', 'net_pay').first()
 
                     # earnings reconciliation
                     logger.info(f'Getting user earnings processors for {employee}')
