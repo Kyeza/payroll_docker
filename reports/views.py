@@ -758,7 +758,9 @@ def social_security_report(request, periods):
     context = {
         'title': title,
         'payroll_centre': payroll_centre,
-        'nssfreport_list': nssfreport_list,
+        # 'nssfreport_list': nssfreport_list,
     }
 
     return render(request, 'reports/nssfreport_list.html', context)
+
+

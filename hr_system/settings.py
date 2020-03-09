@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'djcelery_email',
+    'rest_framework',
 ]
 
 SITE_ID = 1
@@ -122,10 +123,10 @@ else:
                 'sql_mode': 'STRICT_TRANS_TABLES',
                 'isolation_level': 'read committed'
             },
-            'NAME': 'payroll_schema_ss',
+            'NAME': 'payroll_schema_ss_dev',
             'USER': 'root',
             'PASSWORD': 'Kam12345',
-            'HOST':'localhost',
+            'HOST': 'localhost',
             'PORT': '3306',
         }
     }
