@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     'djcelery_email',
+    'channels',
 ]
 
 SITE_ID = 1
@@ -71,6 +72,7 @@ MIDDLEWARE = [
 INTERNAL_IPS = ['127.0.0.1']
 
 ROOT_URLCONF = 'hr_system.urls'
+ASGI_APPLICATION = 'hr_system.routing.application'
 
 TEMPLATES = [
     {
@@ -231,8 +233,13 @@ CACHE_MIDDLEWARE_ALIAS = 'default'
 CACHE_MIDDLEWARE_SECONDS = 000
 CACHE_MIDDLEWARE_KEY_PREFIX = 'SCUIG'
 
-CELERY_BROKER_URL = os.environ.get('BROKER_URL')
-CELERY_RESULT_BACKEND = 'django-db'
+# CELERY_BROKER_URL = os.environ.get('BROKER_URL')
+CELERY_BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'django-db'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
 CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 # Other Celery settings
@@ -241,4 +248,13 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'notify_user_on_contract_expiry',
         'schedule': crontab(hour=7, minute=30, day_of_week=1)
     }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
 }

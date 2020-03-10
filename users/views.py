@@ -840,8 +840,6 @@ def process_payroll_period(request, pk, user=None):
         try:
             response = processor(request.user, payroll_period, process_with_rate, 'POST')
         except Exception as e:
-            # msgs = messages.info(request, 'There are no PayrollCenter Earning and Deductions in the System')
-            # html = render_to_string('partials/messages.html', {'msgs': msgs})
             logger.error(f'Something went wrong {e.args}')
             response = {'status': f'Failed: {e.args}', 'message': ''}
             return JsonResponse(response)
@@ -852,7 +850,6 @@ def process_payroll_period(request, pk, user=None):
         employee = Employee.objects.get(pk=user)
         payroll_period = get_object_or_404(PayrollPeriod, pk=pk)
         processor(request.user, payroll_period, process_with_rate=payroll_period.processing_dollar_rate, user=employee)
-        # return HttpResponseRedirect(reverse('reports:display-summary-report', args=(payroll_period.id,)))
         return redirect('reports:display-summary-report', payroll_period.id)
 
 
