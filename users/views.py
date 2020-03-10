@@ -196,7 +196,7 @@ def user_update_profile(request, pk=None):
                         user_profile.user_group.user_set.add(user)
 
             # add user to PayrollProcessor
-            add_user_to_payroll_processor(user)
+            add_user_to_payroll_processor.delay(user.id)
 
             messages.success(request, 'Employee has been updated')
             return redirect('users:edit-employee')
@@ -408,7 +408,7 @@ def approve_employee(request, pk=None):
             profile_update_form.save_m2m()
 
             # add user to PayrollProcessor
-            add_user_to_payroll_processor.delay(profile_user)
+            add_user_to_payroll_processor.delay(profile_user.id)
 
             # logger.info(f'{request.user} approved Employee {employee_profile.user}')
 
@@ -843,7 +843,7 @@ def process_payroll_period(request, pk, user=None):
         process_with_rate = float(request.POST.get('process_with_rate'))
         try:
             test_task.delay()
-            response = process_payroll_period_report.delay(request.user, payroll_period, process_with_rate, 'POST')
+            response = process_payroll_period_report.delay(request.user.id, payroll_period.id, process_with_rate, 'POST')
         except Exception as e:
             logger.error(f'Something went wrong {e.args}')
             response = {'status': f'Failed: {e.args}', 'message': ''}
@@ -855,7 +855,7 @@ def process_payroll_period(request, pk, user=None):
         employee = Employee.objects.get(pk=user)
         payroll_period = get_object_or_404(PayrollPeriod, pk=pk)
         test_task.delay()
-        process_payroll_period_report.delay(request.user, payroll_period,
+        process_payroll_period_report.delay(request.user.id, payroll_period.id,
                                             process_with_rate=payroll_period.processing_dollar_rate, user=employee)
         return redirect('reports:display-summary-report', payroll_period.id)
 

@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 from decimal import Decimal
@@ -9,13 +10,15 @@ from payroll.models import PayrollPeriod, PayrollCenterEds, EarningDeductionType
 from reports.models import ExTraSummaryReportInfo
 from reports.models import NSSFReport
 from support_data.models import SudaneseTaxRates
-from users.models import PayrollProcessors
+from users.models import PayrollProcessors, User
 
 logger = logging.getLogger('payroll')
 
 
 @shared_task
-def add_users_for_period(payroll_period, instance):
+def add_users_for_period(pp_id, ins_id):
+    payroll_period = PayrollPeriod.objects.get(pk=pp_id)
+    instance = User.objects.get(pk=ins_id)
     logger.debug(f'Adding user to Period {payroll_period}')
     user_payroll_center = instance.employee.payroll_center
     payroll_center_ed_types = PayrollCenterEds.objects.select_related('ed_type') \
@@ -104,11 +107,13 @@ def add_users_for_period(payroll_period, instance):
 
 
 @shared_task
-def add_user_to_payroll_processor(instance, payroll_period=None):
+def add_user_to_payroll_processor(ins_id, pp_id=None):
+    instance = User.objects.get(pk=ins_id)
     logger.debug(f'adding user: {instance} to payroll processor')
     user_status = instance.employee.employment_status
+    payroll_period = PayrollPeriod.objects.get(pk=pp_id)
     if payroll_period:
-        add_users_for_period(payroll_period, instance)
+        add_users_for_period.delay(payroll_period, instance)
     else:
         payroll_periods = instance.employee.payroll_center.payrollperiod_set.all()
         if user_status == 'APPROVED' or user_status == 'REACTIVATED':
@@ -116,18 +121,20 @@ def add_user_to_payroll_processor(instance, payroll_period=None):
                 open_payroll_period = payroll_periods.filter(status='OPEN').all()
                 if open_payroll_period.exists():
                     for payroll_period in open_payroll_period:
-                        add_users_for_period(payroll_period, instance)
+                        add_users_for_period.delay(payroll_period, instance)
                 else:
                     logger.error(f'No OPEN payroll periods in the Processor')
             else:
                 logger.error(f'No PayrollPeriods in the Processor')
         else:
             logger.error(f'{instance} either not APPROVED or REACTIVATED')
+    asyncio.sleep(90)
 
 
 @shared_task
-def process_payroll_period_report(request_user, payroll_period, process_with_rate=None, method='GET', user=None):
+def process_payroll_period_report(request_user, pp_id, process_with_rate=None, method='GET', user=None):
     logger.info(f'started payroll process processing')
+    payroll_period = PayrollPeriod.objects.get(pk=pp_id)
     response = {}
     payroll_center = payroll_period.payroll_center
     if process_with_rate:
@@ -135,7 +142,8 @@ def process_payroll_period_report(request_user, payroll_period, process_with_rat
         try:
             payroll_period.save()
         except ValidationError:
-            payroll_period.created_by = request_user
+            user = User(request_user)
+            payroll_period.created_by = User.objects.get(pk=request_user)
             payroll_period.save()
 
     users = payroll_center.employee_set.select_related('user').all()
@@ -146,7 +154,7 @@ def process_payroll_period_report(request_user, payroll_period, process_with_rat
             if employee.employment_status == 'APPROVED':
                 inst = employee.user
                 try:
-                    add_user_to_payroll_processor(inst, payroll_period)
+                    add_user_to_payroll_processor.delay(inst, payroll_period)
                 except Exception as e:
                     logger.error(f'Something went wrong')
                     logger.error(f'{e.args}')
@@ -452,31 +460,37 @@ def process_nssf_nsif_reports(payroll_period_id):
             logger.error(f"{employee} with extra report_is: {report_key} doesn\'t exist.")
 
         if NSSFReport.objects.filter(report_key=report_key).exists():
-            report = NSSFReport.objects.get(report_key=report_key)
-            report.payroll_period_id = payroll_period_id
-            report.employee_id = employee.pk
-            report.agresso_number = employee.agresso_number
-            report.nsif_or_nssf_number = employee.nhif_number
-            report.employee_full_name = employee.user.get_full_name()
-            report.duty_station = employee.duty_station.duty_station
-            report.cost_centre = employee.cost_centre
-            report.job_title = employee.job_title.job_title
-            report.user_extra_report = user_report
-            report.save()
+            try:
+                report = NSSFReport.objects.get(report_key=report_key)
+                report.payroll_period_id = payroll_period_id
+                report.employee_id = employee.pk
+                report.agresso_number = employee.agresso_number
+                report.nsif_or_nssf_number = employee.nhif_number
+                report.employee_full_name = employee.user.get_full_name()
+                report.duty_station = employee.duty_station.duty_station
+                report.cost_centre = employee.cost_centre
+                report.job_title = employee.job_title.job_title
+                report.user_extra_report = user_report
+                report.save()
+            except AttributeError as e:
+                print(e.args)
         else:
             employee_nsif = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=32).first()
             employer_nsif = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=31).first()
-            nssf_report = NSSFReport(payroll_period_id=payroll_period_id,
-                                     employee_id=employee.pk,
-                                     agresso_number=employee.agresso_number,
-                                     nsif_or_nssf_number=employee.nhif_number,
-                                     employee_full_name=employee.user.get_full_name(),
-                                     duty_station=employee.duty_station.duty_station,
-                                     cost_centre=employee.cost_centre,
-                                     job_title=employee.job_title.job_title,
-                                     user_extra_report=user_report)
-            nssf_report.save()
-            nssf_report.earnings_and_deductions.add(employee_nsif, employer_nsif)
+            try:
+                nssf_report = NSSFReport(payroll_period_id=payroll_period_id,
+                                         employee_id=employee.pk,
+                                         agresso_number=employee.agresso_number,
+                                         nsif_or_nssf_number=employee.nhif_number,
+                                         employee_full_name=employee.user.get_full_name(),
+                                         duty_station=employee.duty_station.duty_station,
+                                         cost_centre=employee.cost_centre,
+                                         job_title=employee.job_title.job_title,
+                                         user_extra_report=user_report)
+                nssf_report.save()
+                nssf_report.earnings_and_deductions.add(employee_nsif, employer_nsif)
+            except AttributeError as e:
+                print(e)
 
     e = time.time()
     print(f"Processed NSSF data in {e - s} seconds")
