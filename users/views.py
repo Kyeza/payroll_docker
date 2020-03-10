@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 from builtins import super
 from decimal import Decimal
 
@@ -20,7 +19,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from payroll.models import PayrollPeriod, PayrollCenterEds, EarningDeductionType
+from payroll.models import PayrollPeriod, EarningDeductionType
 from reports.helpers.mailer import Mailer
 from reports.models import ExTraSummaryReportInfo
 from support_data.models import JobTitle, SudaneseTaxRates, DutyStation, ContractType, Department, Grade
@@ -30,6 +29,7 @@ from users.models import Employee, PayrollProcessors, CostCentre, SOF, DEA, Empl
 from .forms import StaffCreationForm, ProfileCreationForm, StaffUpdateForm, ProfileUpdateForm, \
     EmployeeApprovalForm, TerminationForm, EmployeeProjectForm, LoginForm, ProfileGroupForm, EmployeeMovementForm, \
     EnumerationsMovementForm
+from reports.tasks import add_user_to_payroll_processor
 
 logger = logging.getLogger('payroll')
 
@@ -195,9 +195,9 @@ def user_update_profile(request, pk=None):
                         user_profile.user_group.user_set.add(user)
 
             # add user to PayrollProcessor
-            add_user_to_payroll_processor(user)
+            add_user_to_payroll_processor.delay(user.id)
 
-            messages.success(request, 'Employee has been updated')
+            messages.success(request, f'{user.get_full_name()} has been updated')
             return redirect('users:edit-employee')
     else:
         user_update_form = StaffUpdateForm(instance=user)
@@ -266,118 +266,6 @@ def user_change_group(request, pk=None):
     }
     return render(request, 'users/auth/change_user_group_form.html', context)
 
-
-def add_users_for_period(payroll_period, instance):
-    logger.debug(f'Adding user to Period {payroll_period}')
-    user_payroll_center = instance.employee.payroll_center
-    payroll_center_ed_types = PayrollCenterEds.objects.select_related('ed_type') \
-        .filter(payroll_center=user_payroll_center)
-
-    if payroll_center_ed_types.exists():
-        # get existing instance processors if they exists
-        existing_user_payroll_processors = PayrollProcessors.objects \
-            .select_related('employee', 'earning_and_deductions_type', 'earning_and_deductions_category',
-                            'payroll_period', 'earning_and_deductions_type__ed_category_id',
-                            'earning_and_deductions_type__ed_type') \
-            .filter(employee=instance.employee).filter(payroll_period=payroll_period)
-        # if ed_types for the employees payroll center exist
-        if existing_user_payroll_processors.exists():
-            logger.debug(f'user\'s {payroll_period} processors exist')
-            # PayrollCenterEdTypes can change, hence in case there is one not in the processor
-            # associated with that instance, then create it
-            for pc_ed_type in payroll_center_ed_types.iterator():
-                ed_type = existing_user_payroll_processors.filter(earning_and_deductions_type=pc_ed_type.ed_type)
-                if ed_type.exists():
-                    # if that ed_type already has a processor associated with the instance leave
-                    # it and continue
-                    continue
-                else:
-                    # else create it
-                    logger.debug(f'adding {pc_ed_type.ed_type.ed_type} to user\'s existing processors')
-                    user_process = PayrollProcessors(employee=instance.employee,
-                                                     earning_and_deductions_category=pc_ed_type
-                                                     .ed_type.ed_category,
-                                                     earning_and_deductions_type=pc_ed_type.ed_type,
-                                                     amount=0, payroll_period=payroll_period)
-                    user_process.save()
-
-        else:
-            logger.debug(f'Creating user\'s {payroll_period} processes in Processor')
-            # if its a new instance in the payroll period, create processors for that
-            # instance/employee
-            for pc_ed_type in payroll_center_ed_types.iterator():
-                basic_salary_reg = re.compile(r'basic salary', re.IGNORECASE, )
-                hardship_allowance_reg = re.compile(r'hardship allowance', re.IGNORECASE, )
-                user_process = None
-                if pc_ed_type.ed_type.id == 1:
-                    user_process = PayrollProcessors(employee=instance.employee,
-                                                     earning_and_deductions_category=pc_ed_type
-                                                     .ed_type.ed_category,
-                                                     earning_and_deductions_type=pc_ed_type.ed_type,
-                                                     amount=instance.employee.basic_salary,
-                                                     payroll_period=payroll_period)
-                    logger.info(
-                        f'Added {instance} {pc_ed_type.ed_type.ed_type} earning to period processes')
-                elif pc_ed_type.ed_type.id == 2:
-                    if instance.employee.duty_station:
-                        user_process = PayrollProcessors(employee=instance.employee,
-                                                         earning_and_deductions_category=pc_ed_type
-                                                         .ed_type.ed_category,
-                                                         earning_and_deductions_type=pc_ed_type.ed_type,
-                                                         amount=instance.employee.duty_station
-                                                         .earning_amount,
-                                                         payroll_period=payroll_period)
-                        logger.info(
-                            f'Added {instance} {pc_ed_type.ed_type.ed_type} earning to period processes')
-                elif pc_ed_type.ed_type.id == 78:
-                    user_process = PayrollProcessors(employee=instance.employee,
-                                                     earning_and_deductions_category=pc_ed_type
-                                                     .ed_type.ed_category,
-                                                     earning_and_deductions_type=pc_ed_type.ed_type,
-                                                     amount=22,
-                                                     payroll_period=payroll_period)
-                    logger.info(
-                        f'Added {instance} {pc_ed_type.ed_type.ed_type} earning to period processes')
-                else:
-                    user_process = PayrollProcessors(employee=instance.employee,
-                                                     earning_and_deductions_category=pc_ed_type
-                                                     .ed_type.ed_category,
-                                                     earning_and_deductions_type=pc_ed_type.ed_type,
-                                                     amount=0,
-                                                     payroll_period=payroll_period)
-                    logger.info(
-                        f'Added {instance} {pc_ed_type.ed_type.ed_type} earning to period processes')
-
-                if user_process:
-                    user_process.save()
-                else:
-                    logger.error(
-                        f'PayrollCenter {pc_ed_type.ed_type.ed_type} for {instance} was not processed')
-    else:
-        logger.error(f'Payroll center has no Earnings and Deductions')
-
-
-def add_user_to_payroll_processor(instance, payroll_period=None):
-    logger.debug(f'adding user: {instance} to payroll processor')
-    user_status = instance.employee.employment_status
-    if payroll_period:
-        add_users_for_period(payroll_period, instance)
-    else:
-        payroll_periods = instance.employee.payroll_center.payrollperiod_set.all()
-        if user_status == 'APPROVED' or user_status == 'REACTIVATED':
-            if payroll_periods.exists():
-                open_payroll_period = payroll_periods.filter(status='OPEN').all()
-                if open_payroll_period.exists():
-                    for payroll_period in open_payroll_period:
-                        add_users_for_period(payroll_period, instance)
-                else:
-                    logger.error(f'No OPEN payroll periods in the Processor')
-            else:
-                logger.error(f'No PayrollPeriods in the Processor')
-        else:
-            logger.error(f'{instance} either not APPROVED or REACTIVATED')
-
-
 @login_required
 @permission_required('users.approve_employee', raise_exception=True)
 def reject_employee(request, pk=None):
@@ -407,7 +295,7 @@ def approve_employee(request, pk=None):
             profile_update_form.save_m2m()
 
             # add user to PayrollProcessor
-            add_user_to_payroll_processor(profile_user)
+            add_user_to_payroll_processor.delay(profile_user.id)
 
             # logger.info(f'{request.user} approved Employee {employee_profile.user}')
 
@@ -559,7 +447,7 @@ def processor(request_user, payroll_period, process_with_rate=None, method='GET'
             if employee.employment_status == 'APPROVED':
                 inst = employee.user
                 try:
-                    add_user_to_payroll_processor(inst, payroll_period)
+                    add_user_to_payroll_processor.delay(inst.id, payroll_period.id)
                 except Exception as e:
                     logger.error(f'Something went wrong')
                     logger.error(f'{e.args}')
