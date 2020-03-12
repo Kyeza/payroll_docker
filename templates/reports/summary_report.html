@@ -139,10 +139,8 @@
 {% block scripts %}
     <script>
         $(document).ready(function () {
-
-
-            var title = document.getElementById("summary_title").innerHTML;
-            var table = $('#table_id').DataTable({
+            let title = document.getElementById("summary_title").innerHTML;
+            let table = $('#table_id').DataTable({
                 columnDefs: [{
                     searchable: false,
                     orderable: false,

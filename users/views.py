@@ -29,7 +29,7 @@ from users.models import Employee, PayrollProcessors, CostCentre, SOF, DEA, Empl
 from .forms import StaffCreationForm, ProfileCreationForm, StaffUpdateForm, ProfileUpdateForm, \
     EmployeeApprovalForm, TerminationForm, EmployeeProjectForm, LoginForm, ProfileGroupForm, EmployeeMovementForm, \
     EnumerationsMovementForm
-from reports.tasks import add_user_to_payroll_processor
+from reports.tasks import add_user_to_payroll_processor, processor
 
 logger = logging.getLogger('payroll')
 
@@ -266,6 +266,7 @@ def user_change_group(request, pk=None):
     }
     return render(request, 'users/auth/change_user_group_form.html', context)
 
+
 @login_required
 @permission_required('users.approve_employee', raise_exception=True)
 def reject_employee(request, pk=None):
@@ -340,7 +341,7 @@ class RecruitedEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, Lis
         else:
             assigned_user_locations = list(self.request.user.employee.assigned_locations.all())
             return Employee.objects.select_related('user', 'department', 'job_title') \
-                .filter(employment_status='Recruit').order_by('-appointment_date')\
+                .filter(employment_status='Recruit').order_by('-appointment_date') \
                 .filter(duty_station__in=assigned_user_locations).iterator()
 
 
@@ -377,7 +378,8 @@ class ChangeGroupEmployeeListView(LoginRequiredMixin, PermissionRequiredMixin, L
     def get_queryset(self):
         if self.request.user.is_superuser:
             return Employee.objects \
-                .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department', 'job_title',
+                .select_related('user', 'nationality', 'grade', 'duty_station', 'duty_country', 'department',
+                                'job_title',
                                 'line_manager', 'contract_type', 'payroll_center', 'bank_1', 'bank_2', 'category',
                                 'currency', 'kin_relationship', 'district') \
                 .filter(employment_status='Approved').iterator()
@@ -427,295 +429,6 @@ class SeparatedEmployeesListView(LoginRequiredMixin, NeverCacheMixin, Permission
         return context
 
 
-def processor(request_user, payroll_period, process_with_rate=None, method='GET', user=None):
-    logger.info(f'started payroll process processing')
-    response = {}
-    payroll_center = payroll_period.payroll_center
-    if process_with_rate:
-        payroll_period.processing_dollar_rate = process_with_rate
-        try:
-            payroll_period.save()
-        except ValidationError:
-            payroll_period.created_by = request_user
-            payroll_period.save()
-
-    users = payroll_center.employee_set.select_related('user').all()
-    employees_in_period = set()
-    if users.exists() and user is None:
-        logger.critical(f'Adding Payroll center users for Period {payroll_period} to processor')
-        for employee in users:
-            if employee.employment_status == 'APPROVED':
-                inst = employee.user
-                try:
-                    add_user_to_payroll_processor.delay(inst.id, payroll_period.id)
-                except Exception as e:
-                    logger.error(f'Something went wrong')
-                    logger.error(f'{e.args}')
-        logger.critical(f'Successfully added users for Period {payroll_period} to processor')
-    elif user:
-        employees_in_period.add(user)
-    else:
-        logger.error(f'No Employees in the system')
-        response['message'] = 'Something went wrong'
-        response['status'] = 'Failed: No Employees in the system'
-
-    if user:
-        period_processes = PayrollProcessors.objects \
-            .select_related('employee', 'employee__user', 'earning_and_deductions_type', 'earning_and_deductions_category',
-                            'employee__nationality', 'employee__grade', 'employee__duty_station',
-                            'employee__duty_country',
-                            'employee__department', 'employee__job_title', 'employee__line_manager',
-                            'employee__contract_type', 'employee__payroll_center', 'employee__bank_1',
-                            'employee__bank_2',
-                            'employee__category') \
-            .filter(payroll_period=payroll_period).filter(employee=user) \
-            .filter(payroll_period__payroll_center_id=payroll_center.id).all() \
-            .prefetch_related('employee__report', 'employee__report__payroll_period')
-        logger.debug(f'Processors: {period_processes.count()}')
-    else:
-        period_processes = PayrollProcessors.objects \
-            .select_related('employee', 'employee__user', 'earning_and_deductions_type', 'earning_and_deductions_category',
-                            'employee__nationality', 'employee__grade', 'employee__duty_station',
-                            'employee__duty_country',
-                            'employee__department', 'employee__job_title', 'employee__line_manager',
-                            'employee__contract_type', 'employee__payroll_center', 'employee__bank_1',
-                            'employee__bank_2',
-                            'employee__category') \
-            .filter(payroll_period=payroll_period).filter(payroll_period__payroll_center_id=payroll_center.id).all() \
-            .prefetch_related('employee__report', 'employee__report__payroll_period')
-
-    # removing any terminated employees before processing
-    if users.exists() and user is None:
-        if period_processes.exists():
-            for process in period_processes.iterator():
-                if process.employee.employment_status == 'TERMINATED':
-                    process.delete()
-                else:
-                    employees_in_period.add(process.employee)
-        else:
-            logger.error(f'Here - > There are currently no Employees for this Payroll Period')
-            response['message'] = 'There are currently no Employees for this Payroll Period'
-            response['status'] = 'Failed: There are currently no Employees for this Payroll Period'
-    elif len(employees_in_period) == 0:
-        logger.error(f'No Employees in the system')
-
-    logger.info(f'Calculating tax rates according to current dollar rate ({process_with_rate})')
-    current_tax_rates = list(SudaneseTaxRates.objects.all())
-    if current_tax_rates:
-        for i, tax_bracket in enumerate(current_tax_rates):
-            if i < len(current_tax_rates) - 1:
-                tax_bracket.actual_usd = round((tax_bracket.upper_ssp_bound - tax_bracket.lower_ssp_bound) / Decimal(process_with_rate))
-            if 0 < i < len(current_tax_rates) - 1:
-                tax_bracket.actual_usd_taxable_amount = round(Decimal(tax_bracket.tax_rate) * tax_bracket.actual_usd)
-            tax_bracket.save()
-    nhif_ed_type = EarningDeductionType.objects.get(pk=32)
-    nhif_ed_type_17 = EarningDeductionType.objects.get(pk=31)
-    accrued_ap = EarningDeductionType.objects.get(pk=72)
-    accrued_gl = EarningDeductionType.objects.get(pk=73)
-    for employee in employees_in_period:
-        logger.info(f'Processing for user {employee}')
-        basic_salary = 0
-        gross_earnings, total_deductions, pit, net_pay, nhif_8, nhif_17 = 0, 0, 0, 0, 0, 0
-        ge_data = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_category_id=1).all()
-
-        # calculating gross earnings
-        logger.info(f'Processing for user {employee}: calculating gross earnings')
-        if ge_data.exists():
-            for inst in ge_data.iterator():
-                if inst.earning_and_deductions_type.id == 1 and inst.amount == 0 and user is None:
-                    inst.amount = employee.basic_salary
-                    inst.save(update_fields=['amount'])
-                elif inst.earning_and_deductions_type.id == 2 and user is None:
-                    if employee.duty_station and (
-                            employee.duty_station.earning_amount is not None) and inst.amount != employee.duty_station.earning_amount:
-                        inst.amount = employee.duty_station.earning_amount
-                        inst.save(update_fields=['amount'])
-                gross_earnings += inst.amount
-
-        basic_salary = period_processes.filter(employee=employee).filter(earning_and_deductions_type_id=1).first().amount
-
-        arrears = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=11).first()
-
-        # calculating NHIF
-        logger.info(f'Processing for user {employee}: calculating NHIF')
-        employee_nhif = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=32).first()
-        if employee_nhif:
-            employee_nhif.amount = round((basic_salary + arrears.amount) * Decimal(nhif_ed_type.factor))
-            nhif_8 = employee_nhif.amount
-            employee_nhif.save(update_fields=['amount'])
-
-        # calculating Taxable gross earnings
-        taxable_gross_earnings = gross_earnings - employee_nhif.amount
-
-        # calculating PIT
-        logger.info(f'Processing for user {employee}: calculating PIT')
-
-        rates = []
-        for rate in current_tax_rates:
-            rates.append(rate)
-
-        accumulated_actual_usd_amounts = []
-        for i, rate in enumerate(rates):
-            if i == len(rates) - 1:
-                taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
-                pit = taxable_gross_earnings + \
-                      sum(accumulated_actual_usd_amounts) if accumulated_actual_usd_amounts else 0
-                break
-            elif int(taxable_gross_earnings) <= int(rate.actual_usd):
-                rate_before = rates[i-1]
-                taxable_gross_earnings = taxable_gross_earnings * Decimal(rate.tax_rate)
-                pit = taxable_gross_earnings + \
-                      sum(accumulated_actual_usd_amounts) if accumulated_actual_usd_amounts else 0
-                break
-            else:
-                taxable_gross_earnings = taxable_gross_earnings - rate.actual_usd
-                if rate.actual_usd_taxable_amount is not None:
-                    accumulated_actual_usd_amounts.append(rate.actual_usd_taxable_amount)
-
-        # update PIT if exists in payroll center
-        logger.info(f'Processing for user {employee}: updating PIT')
-        employee_pit_processor = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=61).first()
-        if employee_pit_processor:
-            employee_pit_processor.amount = pit
-            employee_pit_processor.save(update_fields=['amount'])
-
-        # update Pension if exists in payroll center
-        logger.info(f'Processing for user {employee}: updating Pension')
-        employee_pension_processor = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=75).first()
-        if employee_pension_processor:
-            employee_pension_processor.amount = basic_salary * Decimal(5 / 100)
-            employee_pension_processor.save(update_fields=['amount'])
-
-        # update Employer Pension if exists in payroll center
-        logger.info(f'Processing for user {employee}: updating Employer Pension')
-        employer_pension = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=76).first()
-        if employer_pension:
-            employer_pension.amount = (basic_salary + arrears.amount) / Decimal(12)
-            employer_pension.save(update_fields=['amount'])
-
-        # update NSSF 17% if exists in payroll center
-        logger.info(f'Processing for user {employee}: updating NHIF 17%')
-        employee_nhif_17_processor = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=31).first()
-        if employee_nhif_17_processor:
-            employee_nhif_17_processor.amount = round((basic_salary + arrears.amount) * Decimal(nhif_ed_type_17.factor))
-            nhif_17 = employee_nhif_17_processor.amount
-            employee_nhif_17_processor.save(update_fields=['amount'])
-
-        tx_data_ded = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_category_id=2).all()
-        tx_data_stat = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_category_id=3).all()
-
-        # calculating total deductions from deductions
-        logger.info(f'Processing for user {employee}: calculating total deductions from deductions')
-        try:
-            if tx_data_ded.exists():
-                for inst in tx_data_ded.iterator():
-                    if inst.amount:
-                        total_deductions += inst.amount
-                    else:
-                        inst.amount = 0
-                        inst.save()
-                        total_deductions += inst.amount
-
-        except Exception as e:
-            logger.info(f'error: {e}')
-
-        # calculating total deductions from statutory deductions
-        logger.info(f'Processing for user {employee}: calculating total deductions from statutory deductions')
-        if tx_data_stat.exists():
-            for inst in tx_data_stat.iterator():
-                total_deductions += inst.amount
-
-        logger.info(f'Processing for user {employee}: calculating NET PAY')
-        net_pay = gross_earnings - total_deductions
-
-        # update net_pay if exists in payroll center
-        logger.info(f'Processing for user {employee}: Net pay')
-        employee_net_pay = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=60).first()
-        if employee_net_pay:
-            employee_net_pay.amount = net_pay
-            employee_net_pay.save(update_fields=['amount'])
-
-        # update accrued salary ap if exists in payroll center
-        logger.info(f'Processing for user {employee}: Accrued Salary AP')
-        employee_accrued_salary_ap = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=72).first()
-        if employee_accrued_salary_ap:
-            employee_accrued_salary_ap.amount = (basic_salary + arrears.amount) / Decimal(accrued_ap.factor)
-            employee_accrued_salary_ap.save(update_fields=['amount'])
-
-        # update accrued salary gl if exists in payroll center
-        logger.info(f'Processing for user {employee}: Accrued Salary AL')
-        employee_accrued_salary_gl = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=73).first()
-        if employee_accrued_salary_gl:
-            employee_accrued_salary_gl.amount = (basic_salary + arrears.amount) / Decimal(accrued_gl.factor)
-            employee_accrued_salary_gl.save(update_fields=['amount'])
-
-        # updating NHIF export
-        logger.info(f'Processing for user {employee}: NHIF Export')
-        employee_nhif_export = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=77).first()
-        if employee_nhif_export:
-            employee_nhif_export.amount = nhif_8 + nhif_17
-            employee_nhif_export.save(update_fields=['amount'])
-
-        # updating number of working hours
-        logger.info(f'Processing for user {employee}: Number of Working days')
-        working_days = period_processes.filter(employee=employee) \
-            .filter(earning_and_deductions_type_id=78).first()
-
-        if working_days.amount == 0:
-            working_days.amount = 22
-            working_days.save()
-
-        try:
-            key = f'{payroll_period.payroll_key}S{employee.pk}'
-            report = ExTraSummaryReportInfo.objects.get(pk=key)
-            report.employee_name = employee.user.get_full_name()
-            report.analysis = employee.agresso_number
-            report.job_title = employee.job_title
-            report.employee_id = employee.pk
-            report.net_pay = net_pay
-            report.gross_earning = gross_earnings
-            report.total_deductions = total_deductions
-            report.save()
-
-            response['message'] = f'Successfully process Payroll Period with dollar rate of {process_with_rate}'
-            response['status'] = 'Success'
-            logger.info(f'Successfully processed {employee} Payroll Period')
-
-        except ExTraSummaryReportInfo.DoesNotExist:
-            report = ExTraSummaryReportInfo(analysis=employee.agresso_number,
-                                            employee_id=employee.pk,
-                                            employee_name=employee.user.get_full_name(),
-                                            job_title=employee.job_title,
-                                            payroll_period=payroll_period,
-                                            net_pay=net_pay,
-                                            gross_earning=gross_earnings,
-                                            total_deductions=total_deductions)
-            report.save()
-
-            response['message'] = f'Successfully process Payroll Period with dollar rate of {process_with_rate}'
-            response['status'] = 'Success'
-            logger.info(f'Successfully processed {employee} Payroll Period')
-
-    logger.info(f'Finished processing {response}')
-
-    if method == 'POST':
-        logger.debug(f'Displaying report {response}')
-        return response
-
-
 @login_required
 @transaction.atomic()
 @cache_page(60 * 15)
@@ -726,7 +439,8 @@ def process_payroll_period(request, pk, user=None):
         payroll_period = get_object_or_404(PayrollPeriod, pk=pk)
         process_with_rate = float(request.POST.get('process_with_rate'))
         try:
-            response = processor(request.user, payroll_period, process_with_rate, 'POST')
+            processor.delay(request.user.id, payroll_period.id, process_with_rate, 'POST')
+            response = {'message': 'Successfully process Payroll Period with dollar rate of 161.14', 'status': 'Success'}
         except Exception as e:
             logger.error(f'Something went wrong {e.args}')
             response = {'status': f'Failed: {e.args}', 'message': ''}
@@ -737,7 +451,8 @@ def process_payroll_period(request, pk, user=None):
     elif request.method == 'GET':
         employee = Employee.objects.get(pk=user)
         payroll_period = get_object_or_404(PayrollPeriod, pk=pk)
-        processor(request.user, payroll_period, process_with_rate=payroll_period.processing_dollar_rate, user=employee)
+        processor.delay(request.user.id, payroll_period.id, process_with_rate=payroll_period.processing_dollar_rate,
+                        user_id=employee.pk)
         return redirect('reports:display-summary-report', payroll_period.id)
 
 
@@ -1280,7 +995,8 @@ def approve_employee_movement(request, movement_id):
             working_days_processor.save()
             period_processor.amount = round(new_amount)
             period_processor.save(update_fields=['amount'])
-        elif movement.earnings.id == 1 and movement.move_to is None and Decimal(movement.hours) != working_days_processor.amount:
+        elif movement.earnings.id == 1 and movement.move_to is None and Decimal(
+                movement.hours) != working_days_processor.amount:
             working_days_processor = PayrollProcessors.objects. \
                 get(payroll_key=f'P{movement.payroll_period.id}S{employee.pk}K78')
             working_days_processor.amount = Decimal(movement.hours)
@@ -1322,7 +1038,7 @@ def load_overtime_factor(request):
     hours = float(request.GET.get("hours"))
     employee = Employee.objects.get(pk=user_id)
     payroll_period = PayrollPeriod.objects.get(pk=period_id)
-    period_processors = PayrollProcessors.objects.filter(payroll_period_id=payroll_period.id)\
+    period_processors = PayrollProcessors.objects.filter(payroll_period_id=payroll_period.id) \
         .filter(employee_id=employee.pk)
 
     factor = None
