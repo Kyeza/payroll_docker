@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import time
 
@@ -20,7 +21,7 @@ from support_data.forms import DeclinePayrollMessageForm
 from users.forms import EarningsProcessUpdateForm, DeductionsProcessUpdateForm
 from users.models import PayrollProcessors, Employee
 from .forms import ReportGeneratorForm, ReconciliationReportGeneratorForm
-from .models import ExTraSummaryReportInfo
+from .models import ExTraSummaryReportInfo, SocialSecurityReport
 from payroll.models import EarningDeductionType
 
 logger = logging.getLogger('payroll')
@@ -265,6 +266,13 @@ def generate_reports(request):
                 .filter(year=year).filter(month=selected_month).first()
 
             if payroll_period:
+
+                payroll_period_ids = [payroll_period.id]
+
+                if payroll_period_ids:
+                    if report == 'NSSF':
+                        return redirect('reports:social_security_report', periods=payroll_period_ids)
+
                 extra_reports = ExTraSummaryReportInfo.objects.select_related('employee') \
                     .filter(payroll_period_id=payroll_period.pk).all()
                 if extra_reports.exists():
@@ -695,3 +703,39 @@ def generate_reconciliation_report(request):
     }
 
     return render(request, 'reports/generate_reconciliation_report.html', context)
+
+
+def social_security_report(request, periods):
+    periods_list = json.loads(periods)
+
+    periods = PayrollPeriod.objects.filter(id__in=periods_list).select_related('payroll_center').all()
+    periods_keys_dict = {period.payroll_key: 'report_id__istartswith' for period in periods.iterator()}
+    counter = 0
+    queries = None
+    for key, val in periods_keys_dict.items():
+        if counter < len(periods_list) - 1:
+            queries |= Q(**{periods_keys_dict[key]: key})
+        elif counter == len(periods_list) - 1:
+            queries = Q(**{periods_keys_dict[key]: key})
+
+    payroll_centre = periods.first().payroll_center
+    if len(periods_list) <= 1:
+        title = f'NSIF REPORT FOR PERIOD {periods.first().month}, {periods.first().year}'
+    else:
+        title = f'NSIF REPORT FOR PERIOD FROM {periods.first().month} TO {periods.last().month} , {periods.first().year}'
+
+    nssfreport_list = SocialSecurityReport.objects.filter(queries).select_related(
+        'summary_report').all()\
+        .prefetch_related('earnings', 'earnings__earning_and_deductions_type',
+                          'earnings__earning_and_deductions_type__payrollprocessors_set')
+
+    context = {
+        'title': title,
+        'payroll_centre': payroll_centre,
+        'nssfreport_list': nssfreport_list,
+        'periods': periods_list
+    }
+    if request.is_ajax():
+        return JsonResponse(context)
+
+    return render(request, 'reports/nssfreport_list.html', context)

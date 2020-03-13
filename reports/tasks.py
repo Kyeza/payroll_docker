@@ -492,6 +492,7 @@ def update_or_create_user_summary_report(report_id, user_id, net_pay, total_dedu
     except (Exception, AttributeError) as e:
         logger.error(f'an error occurred while processing summary report for {employee.user.get_full_name()}' )
         logger.error(e.args)
+        report.delete()
 
     if created:
         logger.info(f'created summary report for {employee.user.get_full_name()}')
@@ -520,6 +521,7 @@ def update_or_create_user_social_security_report(report_id, user_id, period_id):
     except (Exception, AttributeError) as e:
         logger.error(f'an error occurred while processing social security report for {employee.user.get_full_name()}' )
         logger.error(e.args)
+        report.delete()
 
     if created:
         logger.info(f'created social security report for {employee.user.get_full_name()}')
@@ -546,6 +548,7 @@ def update_or_create_user_taxation_report(report_id, user_id, period_id):
     except (Exception, AttributeError) as e:
         logger.error(f'an error occurred while processing taxation report for {employee.user.get_full_name()}' )
         logger.error(e.args)
+        report.delete()
 
     if created:
         logger.info(f'created taxation report for {employee.user.get_full_name()}')
@@ -572,6 +575,7 @@ def update_or_create_user_bank_report(report_id, user_id, period_id):
             except (Exception, AttributeError) as e:
                 logger.error(f'an error occurred while processing bank report for {employee.user.get_full_name()}')
                 logger.error(e.args)
+                report.delete()
 
             if created:
                 logger.info(f'created bank report 1 for {employee.user.get_full_name()}')
@@ -592,6 +596,7 @@ def update_or_create_user_bank_report(report_id, user_id, period_id):
             except (Exception, AttributeError) as e:
                 logger.error(f'an error occurred while processing bank report for {employee.user.get_full_name()}')
                 logger.error(e.args)
+                report.delete()
 
             if created:
                 logger.info(f'created bank report 2 for {employee.user.get_full_name()}')
@@ -614,6 +619,7 @@ def update_or_create_user_cash_report(report_id, user_id, period_id):
         except (Exception, AttributeError) as e:
             logger.error(f'an error occurred while processing cash report for {employee.user.get_full_name()}')
             logger.error(e.args)
+            report.delete()
 
         if created:
             logger.info(f'created cash report for {employee.user.get_full_name()}')
