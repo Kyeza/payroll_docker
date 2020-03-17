@@ -9,6 +9,7 @@ autobahn==20.3.1
 Automat==20.2.0
 billiard==3.6.1.0
 bootstrap4==0.1.0
+Brotli==1.0.7
 cairocffi==1.0.2
 CairoSVG==2.3.1
 celery==4.3.0
