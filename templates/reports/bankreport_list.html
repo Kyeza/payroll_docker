@@ -10,63 +10,45 @@
         </h4>
         <h5 class="border-bottom mb-5 text-center"><span style="color: #2196F3">{{ title }}</span></h5>
         <div class="table-responsive">
-            <table id="nssf_table" class="table table-sm table-striped table-bordered w-100">
+            <table id="#bank_table_id" class="table table-sm table-striped table-bordered w-100">
                 <caption class="border-bottom mb-4"><span style="color: #2196F3">{{ title }}</span></caption>
                 <thead class="thead-dark">
+            <tr>
+                <th>No</th>
+                <th>Period Month</th>
+                <th>Agresso ID</th>
+                <th>Name</th>
+                <th>Payment Location</th>
+                <th>Bank</th>
+                <th>Branch</th>
+                <th>Sort code</th>
+                <th>Account No.</th>
+                <th>Net Pay</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for report in object_list %}
                 <tr>
-                    <th>No.</th>
-                    <th>Period Month</th>
-                    <th>Agresso ID</th>
-                    <th>NSIF No.</th>
-                    <th>Name</th>
-                    <th>Duty Station</th>
-                    <th>Cost Centre</th>
-                    <th>Job Title</th>
-                    <th>Gross</th>
-                    {% for report in object_list.iterator %}
-                        {% if forloop.first %}
-                            {% for earning in report.earnings.iterator %}
-                                <th>{{ earning.earning_and_deductions_type.ed_type }}</th>
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
-                    <th>Total NSIF</th>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ report.period }}</td>
+                    <td>{{ report.agresso_number }}</td>
+                    <td>{{ report.staff_full_name }}</td>
+                    <td>{{ report.payment_location }}</td>
+                    <td>{{ report.bank }}</td>
+                    <td>{{ report.branch }}</td>
+                    <td>{{ report.sort_code }}</td>
+                    <td>{{ report.account_number }}</td>
+                    <td>{{ report.summary_report.net_pay|intcomma }}</td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for report in object_list.iterator %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ report.period }}</td>
-                        <td>{{ report.agresso_number }}</td>
-                        <td>{{ report.social_security_number }}</td>
-                        <td>{{ report.staff_full_name }}</td>
-                        <td>{{ report.duty_station }}</td>
-                        <td>{{ report.cost_centre }}</td>
-                        <td>{{ report.job_title }}</td>
-                        <td>{{ report.summary_report.gross_earning|intcomma }}</td>
-                        {% for earning in report.earnings.iterator %}
-                            <td>{{ earning.amount|intcomma }}</td>
-                        {% endfor %}
-                        <td>{{ report.total_social_security|intcomma }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-                <tfoot>
+            {% endfor %}
+            </tbody>
+            <tfoot>
                 <tr>
                     <th></th>
-                    <th colspan="7" class="font-weight-light text-info text-center">Total:</th>
-                    <th></th>
-                    {% for report in object_list.iterator %}
-                        {% if forloop.first %}
-                            {% for earning in report.earnings.iterator %}
-                                <th></th>
-                            {% endfor %}
-                        {% endif %}
-                    {% endfor %}
+                    <th colspan="8" class="font-weight-light text-info text-center">Total:</th>
                     <th></th>
                 </tr>
-                </tfoot>
+            </tfoot>
             </table>
         </div>
     </div>
@@ -74,17 +56,33 @@
 {% block scripts %}
     <script>
         $(document).ready(function () {
-            $('#nssf_table').DataTable({
+            $('#bank_table_id thead tr').clone(true).appendTo('#bank_table_id thead');
+            $('#bank_table_id thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                $('input', this).on('keyup change', function () {
+                    if (bankTable.column(i).search() !== this.value) {
+                        bankTable
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            });
+
+            let bankTable = $('#bank_table_id').DataTable({
                 dom: 'lBfrtip',
                 scrollX: true,
                 scrollCollapse: true,
                 autoWidth: true,
                 paging: true,
+                orderCellsTop: true,
+                fixedHeader: true,
                 buttons: [
                     'copy', 'csv', 'excel',
                     {
                         extend: 'pdfHtml5',
-                        orientation: 'landscape',
                     },
                     'print'
                 ],
@@ -105,7 +103,7 @@
                     let i;
                     let total = [];
                     for (i = 0; i < colCount; i++) {
-                        if (i > 7) {
+                        if (i > 8) {
                             total[i] = api
                                 .column(i)
                                 .data()
@@ -117,7 +115,7 @@
 
                     for (i = 0; i < colCount; i++) {
                         // Update footer
-                        if (i > 7) {
+                        if (i > 8) {
                             $(api.column(i).footer()).html(
                                 total[i].toLocaleString()
                             );
