@@ -15,6 +15,7 @@ media/*
 !media/open_period.png
 !media/reports.png
 !media/update_user.png
+!media/payslip_logo.png
 
 celery_service.py
 
