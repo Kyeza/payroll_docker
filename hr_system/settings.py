@@ -125,7 +125,7 @@ else:
             'NAME': 'payroll_schema_ss',
             'USER': 'root',
             'PASSWORD': 'Kam12345',
-            'HOST':'localhost',
+            'HOST': 'localhost',
             'PORT': '3306',
         }
     }
