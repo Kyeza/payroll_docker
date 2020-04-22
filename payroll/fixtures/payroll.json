@@ -1,0 +1,1457 @@
+[
+  {
+    "model": "payroll.earningdeductioncategory",
+    "pk": 1,
+    "fields": {
+      "category_name": "EARNINGS"
+    }
+  },
+  {
+    "model": "payroll.earningdeductioncategory",
+    "pk": 2,
+    "fields": {
+      "category_name": "DEDUCTIONS"
+    }
+  },
+  {
+    "model": "payroll.earningdeductioncategory",
+    "pk": 3,
+    "fields": {
+      "category_name": "STATUTORY"
+    }
+  },
+  {
+    "model": "payroll.earningdeductioncategory",
+    "pk": 4,
+    "fields": {
+      "category_name": "OTHER"
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 1,
+    "fields": {
+      "ed_type": "Basic Salary",
+      "description": "Basic Salary",
+      "account_name": "Salaries - employed by program office",
+      "ed_category": 1,
+      "recurrent": "YES",
+      "taxable": "YES",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "SALARIES\r\n",
+      "account_code": "8010",
+      "debit_credit_sign": "D",
+      "display_number": 1
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 2,
+    "fields": {
+      "ed_type": "Hardship Allowance",
+      "description": "Hardship Allowance",
+      "account_name": "Benefit - living accommodation",
+      "ed_category": 1,
+      "recurrent": "YES",
+      "taxable": "YES",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "HARDSHIP\r\n\r\n\r\n",
+      "account_code": "8110",
+      "debit_credit_sign": "D",
+      "display_number": 4
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 3,
+    "fields": {
+      "ed_type": "Leave Pay Allowance",
+      "description": "Leave Pay Allowance",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "71040",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 4,
+    "fields": {
+      "ed_type": "Acting Allowance",
+      "description": "Acting Allowance",
+      "account_name": "Additional Salary Costs - Employed by Program Office",
+      "ed_category": 1,
+      "recurrent": "YES",
+      "taxable": "YES",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "SALARY COSTS\r\n",
+      "account_code": "8012",
+      "debit_credit_sign": "D",
+      "display_number": 5
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 6,
+    "fields": {
+      "ed_type": "Night Allowance",
+      "description": "Night Allowance",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "71020",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 7,
+    "fields": {
+      "ed_type": "Sales Commission",
+      "description": "Sales Commission",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "71180",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 8,
+    "fields": {
+      "ed_type": "Over Time",
+      "description": "Over Time 1.5",
+      "account_name": "Overtime and Fringe Benefits - Employed by Program office",
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "YES",
+      "factor": 1.5,
+      "summarize": "NO",
+      "agresso_type": "SALARY COSTS\r\n",
+      "account_code": "8011",
+      "debit_credit_sign": "D",
+      "display_number": 3
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 9,
+    "fields": {
+      "ed_type": "Other Allowances",
+      "description": "Other Allowances",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "71020",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 10,
+    "fields": {
+      "ed_type": "Bonus",
+      "description": "Bonus",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "71200",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 11,
+    "fields": {
+      "ed_type": "Arrears",
+      "description": "Arrears",
+      "account_name": "Additional Salary Costs - Employed by Program Office",
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "SALARY COSTS\r\n",
+      "account_code": "8012",
+      "debit_credit_sign": "D",
+      "display_number": 2
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 12,
+    "fields": {
+      "ed_type": "Allowances",
+      "description": "Allowances",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "YES",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 13,
+    "fields": {
+      "ed_type": "COOP Withdrawals",
+      "description": "COOP Withdrawals",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 14,
+    "fields": {
+      "ed_type": "Performance Incentive",
+      "description": "Performance Incentive",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 15,
+    "fields": {
+      "ed_type": "Transport Allowance",
+      "description": "Transport Allowance",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 16,
+    "fields": {
+      "ed_type": "Other Earnings",
+      "description": "Other Earnings",
+      "account_name": "Additional Salary Costs - Employed by Program Office",
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "SALARY COSTS\r\n",
+      "account_code": "8012",
+      "debit_credit_sign": "D",
+      "display_number": 6
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 17,
+    "fields": {
+      "ed_type": "Gratuity",
+      "description": "Gratuity",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 18,
+    "fields": {
+      "ed_type": "Secondment Allowance",
+      "description": "Secondment Allowance",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "YES",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 19,
+    "fields": {
+      "ed_type": "Over Time 2.0",
+      "description": "Over Time 2.0",
+      "account_name": "Overtime and Fringe Benefits - Employed by Program office",
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "YES",
+      "export": "YES",
+      "factor": 2,
+      "summarize": "NO",
+      "agresso_type": "OVERTIME",
+      "account_code": "8011",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 20,
+    "fields": {
+      "ed_type": "Staff Saving Scheme (Coop Savings)",
+      "description": "Staff Saving Scheme (Coop Savings)",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "2400",
+      "debit_credit_sign": "C",
+      "display_number": 18
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 21,
+    "fields": {
+      "ed_type": "Bonus Advances",
+      "description": "Bonus Advances",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 22,
+    "fields": {
+      "ed_type": "Insurance on Vehicle",
+      "description": "Insurance on Vehicle",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 23,
+    "fields": {
+      "ed_type": "Special Advance",
+      "description": "Special Advance",
+      "account_name": "Staff Advances",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "1141",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 24,
+    "fields": {
+      "ed_type": "Revolving Loan",
+      "description": "Revolving Loan",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "22610",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 25,
+    "fields": {
+      "ed_type": "Milleage",
+      "description": "Milleage",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "1500",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 26,
+    "fields": {
+      "ed_type": "Salary Advance",
+      "description": "Salary Advance",
+      "account_name": "Salary Advances to Staff",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "STAFF ADVANCES",
+      "account_code": "1140",
+      "debit_credit_sign": "C",
+      "display_number": 14
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 27,
+    "fields": {
+      "ed_type": "Medical",
+      "description": "Medical",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 28,
+    "fields": {
+      "ed_type": "Accountability",
+      "description": "Accountability",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 29,
+    "fields": {
+      "ed_type": "Time Sheet Data",
+      "description": "Time Sheet Data",
+      "account_name": null,
+      "ed_category": 3,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 31,
+    "fields": {
+      "ed_type": "Employer NSIF",
+      "description": "Company NSIF",
+      "account_name": "Pension Costs",
+      "ed_category": 4,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0.17,
+      "summarize": "NO",
+      "agresso_type": "PENSION COSTS",
+      "account_code": "8300",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 32,
+    "fields": {
+      "ed_type": "Employee NSIF",
+      "description": "Employee  NSIF",
+      "account_name": "Social Security (nssf (5%+10%))",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0.08,
+      "summarize": "NO",
+      "agresso_type": "SOCIAL SECURITY",
+      "account_code": "2132",
+      "debit_credit_sign": "C",
+      "display_number": 7
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 33,
+    "fields": {
+      "ed_type": "G/Tax",
+      "description": "G/Tax",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 34,
+    "fields": {
+      "ed_type": "Gurantee",
+      "description": "Gurantee",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "1500",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 35,
+    "fields": {
+      "ed_type": "Fuel Recovery",
+      "description": "Fuel Recovery",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "1500",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 36,
+    "fields": {
+      "ed_type": "Union Dues",
+      "description": "Union Dues",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "30120",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 37,
+    "fields": {
+      "ed_type": "Pride Micro Finance",
+      "description": "Pride Micro Finance",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "30175",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 38,
+    "fields": {
+      "ed_type": "Impact Advisory",
+      "description": "Impact Advisory",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "30178",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 39,
+    "fields": {
+      "ed_type": "Mid Month Advance",
+      "description": "Mid Month Advance",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 40,
+    "fields": {
+      "ed_type": "Bank Loan 1",
+      "description": "Bank Loan 1",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 41,
+    "fields": {
+      "ed_type": "Bank Loan 2",
+      "description": "Bank Loan 2",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 42,
+    "fields": {
+      "ed_type": "Bank Loan 3",
+      "description": "Bank Loan 3",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 43,
+    "fields": {
+      "ed_type": "Staff Savings Loan (Coop Loan)",
+      "description": "Staff Savings Loan (Coop Loan)",
+      "account_name": "Loan",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "1500",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 44,
+    "fields": {
+      "ed_type": "Leave Advance",
+      "description": "Leave Advance",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 45,
+    "fields": {
+      "ed_type": "RBS",
+      "description": "RBS",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 46,
+    "fields": {
+      "ed_type": "Laptop Deduction",
+      "description": "Laptop Deduction",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "22130",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 47,
+    "fields": {
+      "ed_type": "Other Deductions",
+      "description": "Other Deductions",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": null,
+      "debit_credit_sign": "D",
+      "display_number": 15
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 48,
+    "fields": {
+      "ed_type": "Absence",
+      "description": "Absence",
+      "account_name": null,
+      "ed_category": 3,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "710203010",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 60,
+    "fields": {
+      "ed_type": "NetPay",
+      "description": "NetPay",
+      "account_name": "Accrued payroll",
+      "ed_category": 4,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "YES",
+      "agresso_type": null,
+      "account_code": "2101",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 61,
+    "fields": {
+      "ed_type": "PIT",
+      "description": "PAYE",
+      "account_name": "PAYE",
+      "ed_category": 2,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "YES",
+      "agresso_type": "PAYE",
+      "account_code": "2131",
+      "debit_credit_sign": "C",
+      "display_number": 8
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 62,
+    "fields": {
+      "ed_type": "Gross",
+      "description": "Gross",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "5720",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 63,
+    "fields": {
+      "ed_type": "Vehicle Usage",
+      "description": "Vehicle Usage",
+      "account_name": "Payroll Deduction ",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "PAYROLL DEDUCTIONS",
+      "account_code": "1500",
+      "debit_credit_sign": "C",
+      "display_number": 19
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 64,
+    "fields": {
+      "ed_type": "Telephone",
+      "description": "Telephone",
+      "account_name": "Staff Advances",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "STAFF ADVANCES\r\n",
+      "account_code": "1141",
+      "debit_credit_sign": "C",
+      "display_number": 10
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 65,
+    "fields": {
+      "ed_type": "Local Service Tax",
+      "description": "Local Service Tax",
+      "account_name": "Payroll Deduction ",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "YES",
+      "agresso_type": "ACCRUED PAYROLL",
+      "account_code": "2135",
+      "debit_credit_sign": "C",
+      "display_number": 13
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 66,
+    "fields": {
+      "ed_type": "Debtors",
+      "description": "Debtors",
+      "account_name": "Staff Advances",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "STAFF ADVANCES",
+      "account_code": "1141",
+      "debit_credit_sign": "C",
+      "display_number": 12
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 67,
+    "fields": {
+      "ed_type": "Lunch",
+      "description": "Lunch",
+      "account_name": "Staff Advances",
+      "ed_category": 2,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "STAFF ADVANCES",
+      "account_code": "1141",
+      "debit_credit_sign": "C",
+      "display_number": 11
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 68,
+    "fields": {
+      "ed_type": "Working Advance",
+      "description": "Working Advance",
+      "account_name": "Staff Advances",
+      "ed_category": 2,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "1141",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 69,
+    "fields": {
+      "ed_type": "Staff Contributions",
+      "description": "Staff Contributions",
+      "account_name": null,
+      "ed_category": 2,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "1143",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 70,
+    "fields": {
+      "ed_type": "Vehicle Benefits Earnings",
+      "description": "Vehicle Benefits Earnings",
+      "account_name": null,
+      "ed_category": 1,
+      "recurrent": "YES",
+      "taxable": "YES",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "5720",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 71,
+    "fields": {
+      "ed_type": "Vehicle Benefits Deductions",
+      "description": "Vehicle Benefits Deductions",
+      "account_name": "Payroll Deduction ",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": "5720",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 72,
+    "fields": {
+      "ed_type": "Accrued Salary AP",
+      "description": "Accrued Salary AP",
+      "account_name": "Staff Expenses - payroll (Employer 8.33% of basic +/-arrears)",
+      "ed_category": 4,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 12,
+      "summarize": "NO",
+      "agresso_type": "STAFF EXPENSES",
+      "account_code": "2106",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 73,
+    "fields": {
+      "ed_type": "Accrued Salary GL",
+      "description": "Accrued Salary GL",
+      "account_name": "Severance payments (Employer 8.33% of basic +/-arrears)",
+      "ed_category": 4,
+      "recurrent": "NO",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 12,
+      "summarize": "NO",
+      "agresso_type": "SEVERANCE PAYMENTS\r\n",
+      "account_code": "8210",
+      "debit_credit_sign": "D",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 75,
+    "fields": {
+      "ed_type": "Employee Pension",
+      "description": "Employee Pension",
+      "account_name": "Employee Pension",
+      "ed_category": 2,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "EMPLOYEE PENSION\r\n",
+      "account_code": "2106",
+      "debit_credit_sign": "C",
+      "display_number": 9
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 76,
+    "fields": {
+      "ed_type": "Employer Pension",
+      "description": "Employer Pension",
+      "account_name": "Employee Pension",
+      "ed_category": 4,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": "EMPLOYER PENSION\r\n",
+      "account_code": "2106",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 77,
+    "fields": {
+      "ed_type": "NSSF Export - Total employer NSSF and employee NSSF",
+      "description": "NSSF 15% - Total employer NSSF and employee NSSF",
+      "account_name": "Social Security (nssf (5%+10%))",
+      "ed_category": 4,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "YES",
+      "factor": 15,
+      "summarize": "YES",
+      "agresso_type": null,
+      "account_code": "2132",
+      "debit_credit_sign": "C",
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.earningdeductiontype",
+    "pk": 78,
+    "fields": {
+      "ed_type": "Working days",
+      "description": "22 days for every one",
+      "account_name": null,
+      "ed_category": 4,
+      "recurrent": "YES",
+      "taxable": "NO",
+      "export": "NO",
+      "factor": 0,
+      "summarize": "NO",
+      "agresso_type": null,
+      "account_code": null,
+      "debit_credit_sign": null,
+      "display_number": 1001
+    }
+  },
+  {
+    "model": "payroll.bank",
+    "pk": 1,
+    "fields": {
+      "bank": "STANBIC BANK",
+      "branch": "MAIN",
+      "sort_code": "20000",
+      "bank_code": "100"
+    }
+  },
+  {
+    "model": "payroll.bank",
+    "pk": 2,
+    "fields": {
+      "bank": "ECO BANK",
+      "branch": "MAIN",
+      "sort_code": "30000",
+      "bank_code": "200"
+    }
+  },
+  {
+    "model": "payroll.bank",
+    "pk": 3,
+    "fields": {
+      "bank": "N/A",
+      "branch": "N/A",
+      "sort_code": "4000",
+      "bank_code": "400"
+    }
+  },
+  {
+    "model": "payroll.bank",
+    "pk": 4,
+    "fields": {
+      "bank": "KCB BANK",
+      "branch": "JUBA",
+      "sort_code": null,
+      "bank_code": null
+    }
+  },
+  {
+    "model": "payroll.currency",
+    "pk": 1,
+    "fields": {
+      "currency": "USD",
+      "description": "USD DOLLARS"
+    }
+  },
+  {
+    "model": "payroll.currency",
+    "pk": 2,
+    "fields": {
+      "currency": "SSP",
+      "description": "SOUTH SUDANENSE POUND"
+    }
+  },
+  {
+    "model": "payroll.payrollcenter",
+    "pk": 1,
+    "fields": {
+      "name": "SCI-SS",
+      "date_create": "2019-10-10T14:18:18.157Z",
+      "country": 1,
+      "description": null,
+      "organization": 1
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 1,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 1,
+      "pced_key": "P1E1"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 2,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 4,
+      "pced_key": "P1E4"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 3,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 8,
+      "pced_key": "P1E8"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 4,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 11,
+      "pced_key": "P1E11"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 5,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 16,
+      "pced_key": "P1E16"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 6,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 26,
+      "pced_key": "P1E26"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 7,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 31,
+      "pced_key": "P1E31"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 8,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 32,
+      "pced_key": "P1E32"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 9,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 47,
+      "pced_key": "P1E47"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 10,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 60,
+      "pced_key": "P1E60"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 11,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 61,
+      "pced_key": "P1E61"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 12,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 72,
+      "pced_key": "P1E72"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 13,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 73,
+      "pced_key": "P1E73"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 14,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 76,
+      "pced_key": "P1E76"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 15,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 77,
+      "pced_key": "P1E77"
+    }
+  },
+  {
+    "model": "payroll.payrollcentereds",
+    "pk": 16,
+    "fields": {
+      "payroll_center": 1,
+      "ed_type": 78,
+      "pced_key": "P1E78"
+    }
+  }
+]
