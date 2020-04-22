@@ -124,7 +124,7 @@ else:
                 'sql_mode': 'STRICT_TRANS_TABLES',
                 'isolation_level': 'read committed'
             },
-            'NAME': 'payroll_schema_ss',
+            'NAME': 'payroll_schema_ss_dev',
             'USER': 'root',
             'PASSWORD': 'Kam12345',
             'HOST': 'localhost',
