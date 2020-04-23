@@ -81,6 +81,31 @@
         src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.18/af-2.3.3/b-1.5.6/b-colvis-1.5.6/b-html5-1.5.6/b-print-1.5.6/cr-1.5.0/kt-2.5.0/r-2.2.2/rg-1.1.0/rr-1.2.4/sl-1.3.0/datatables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"
         integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reconnecting-websocket/1.0.0/reconnecting-websocket.js"></script>
+
+<script>
+    let loc = window.location;
+    let wsStart = 'ws://';
+    if (loc.protocol === 'https:') {
+        wsStart = 'wss://';
+    }
+    let endpoint = wsStart + loc.host;
+    console.log(endpoint);
+    let socket = new ReconnectingWebSocket(endpoint);
+
+    socket.onmessage = (e) => {
+        console.log("message", e);
+    };
+    socket.onopen = (e) => {
+        console.log("open", e);
+    };
+    socket.onerror = (e) => {
+        console.log("error", e);
+    };
+    socket.onclose = (e) => {
+        console.log("closed", e);
+    };
+</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -15,7 +15,7 @@ from payroll.models import PayrollPeriod, PayrollCenterEds, EarningDeductionType
 from reports.helpers.mailer import Mailer
 from reports.models import ExTraSummaryReportInfo, SocialSecurityReport, TaxationReport, CashReport, BankReport
 from support_data.models import SudaneseTaxRates
-from users.models import Employee, PayrollProcessors, User
+from users.models import Employee, PayrollProcessors, User, Notification
 
 
 @shared_task
@@ -186,6 +186,7 @@ def add_user_to_payroll_processor(instance_id, payroll_period_id=None):
 def processor(request_user_id, payroll_period_id, process_with_rate=None, method='GET', user_id=None):
     request_user = User.objects.get(pk=request_user_id)
     payroll_period = PayrollPeriod.objects.get(pk=payroll_period_id)
+    Notification.objects.create(to_user=request_user)
     user = None
     if user_id is not None:
         user = Employee.objects.get(pk=user_id)
