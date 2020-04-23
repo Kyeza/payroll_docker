@@ -16,6 +16,7 @@ media/*
 !media/reports.png
 !media/update_user.png
 !media/payslip_logo.png
+.idea
 
 celery_service.py
 
