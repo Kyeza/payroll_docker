@@ -54,6 +54,10 @@
                 <th>Total Deductions</th>
                 <th>Net Pay</th>
                 <th>Payment Method</th>
+                <th>Bank One</th>
+                <th>Bank One A/C No.</th>
+                <th>Bank Two</th>
+                <th>Bank One A/C No.</th>
             </tr>
             </thead>
             <tbody>
@@ -91,6 +95,20 @@
                         <td>{{ report.total_deductions|intcomma }}</td>
                         <td>{{ report.net_pay|intcomma }}</td>
                         <td><{{ staff.payment_type }}/td>
+                        {% if staff.bank_1 is not None %}
+                            <td>staff.bank_1</td>
+                            <td>staff.first_account_number</td>
+                        {% else %}
+                            <td></td>
+                            <td></td>
+                        {% endif %}
+                        {% if staff.bank_2 is not None %}
+                            <td>staff.bank_2</td>
+                            <td>staff.second_account_number</td>
+                        {% else %}
+                            <td></td>
+                            <td></td>
+                        {% endif %}
                     {% endwith %}
                 </tr>
             {% endfor %}
@@ -99,6 +117,8 @@
             <tr>
                 <th></th>
                 <th colspan="6" class="font-weight-light text-info text-center">Total:</th>
+                <th></th>
+                <th></th>
                 <th></th>
                 <th></th>
                 <th></th>
