@@ -62,11 +62,13 @@ class SocialSecurityReport(models.Model):
 class TaxationReport(models.Model):
     report_id = models.CharField(max_length=50, editable=False, primary_key=True)
     period = models.CharField(max_length=20, null=True, blank=True)
+    agresso_number = models.CharField(max_length=15, null=True, blank=True)
     staff_full_name = models.CharField(max_length=200, null=True, blank=True)
     cost_centre = models.CharField(max_length=15, null=True, blank=True)
     tin_number = models.CharField(max_length=30, null=True, blank=True)
     summary_report = models.ForeignKey(ExTraSummaryReportInfo, on_delete=models.SET_NULL, null=True, blank=True)
-    earnings = models.ManyToManyField('users.PayrollProcessors')
+    earnings = models.ManyToManyField('users.PayrollProcessors', related_name='earnings_to_show')
+    deductions = models.ManyToManyField('users.PayrollProcessors', related_name='deductions_to_show')
 
     def __str__(self):
         return f'PIT - {self.staff_full_name}'
@@ -76,6 +78,7 @@ class TaxationReport(models.Model):
 class BankReport(models.Model):
     report_id = models.CharField(max_length=50, editable=False)
     period = models.CharField(max_length=15, null=True, blank=True)
+    agresso_number = models.CharField(max_length=15, null=True, blank=True)
     staff_full_name = models.CharField(max_length=200, null=True, blank=True)
     payment_location = models.CharField(max_length=200, null=True, blank=True)
     bank = models.CharField(max_length=200, null=True, blank=True)
@@ -92,6 +95,7 @@ class BankReport(models.Model):
 class CashReport(models.Model):
     report_id = models.CharField(max_length=50, editable=False, primary_key=True)
     period = models.CharField(max_length=15, null=True, blank=True)
+    agresso_number = models.CharField(max_length=15, null=True, blank=True)
     staff_full_name = models.CharField(max_length=200, null=True, blank=True)
     job_title = models.CharField(max_length=200, null=True, blank=True)
     payment_location = models.CharField(max_length=200, null=True, blank=True)

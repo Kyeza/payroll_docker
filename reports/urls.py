@@ -2,7 +2,6 @@ from django.urls import path, include
 
 from . import views
 
-
 app_name = 'reports'
 urlpatterns = [
     path('summary_report/<int:pk>', views.display_summary_report, name='display-summary-report'),

@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load reports_extras %}
+{% load humanize %}
+
+{% block content %}
+    <div class="content-section">
+        <h4 style="color: #2196F3" class="border-top pt-4 mb-2 text-center">
+            {{ payroll_centre }}
+        </h4>
+        <h5 class="border-bottom mb-5 text-center"><span style="color: #2196F3">{{ title }}</span></h5>
+        <div class="table-responsive">
+            <table id="#cash_table_id" class="table table-sm table-striped table-bordered w-100">
+                <caption class="border-bottom mb-4"><span style="color: #2196F3">{{ title }}</span></caption>
+                <thead class="thead-dark">
+            <tr>
+                <th>No</th>
+                <th>Period Month</th>
+                <th>Agresso ID</th>
+                <th>Name</th>
+                <th>Job Title</th>
+                <th>Payment Location</th>
+                <th>Payment Type</th>
+                <th>Net Pay</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for report in object_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ report.period }}</td>
+                    <td>{{ report.agresso_number }}</td>
+                    <td>{{ report.staff_full_name }}</td>
+                    <td>{{ report.job_title }}</td>
+                    <td>{{ report.payment_location }}</td>
+                    <td>{{ report.payment_type }}</td>
+                    <td>{{ report.summary_report.net_pay|intcomma }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th colspan="6" class="font-weight-light text-info text-center">Total:</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
+{% block scripts %}
+    <script>
+        $(document).ready(function () {
+            $('#cash_table_id thead tr').clone(true).appendTo('#cash_table_id thead');
+            $('#cash_table_id thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                $('input', this).on('keyup change', function () {
+                    if (cashTable.column(i).search() !== this.value) {
+                        cashTable
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            });
+
+            let cashTable = $('#cash_table_id').DataTable({
+                dom: 'lBfrtip',
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: true,
+                paging: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                buttons: [
+                    'copy', 'csv', 'excel',
+                    {
+                        extend: 'pdfHtml5',
+                    },
+                    'print'
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
+
+                    let colCount = api.columns().header().length;
+
+                    // Remove the formatting to get integer data for summation
+                    let intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    let i;
+                    let total = [];
+                    for (i = 0; i < colCount; i++) {
+                        if (i > 4) {
+                            total[i] = api
+                                .column(i)
+                                .data()
+                                .reduce(function (a, b) {
+                                    return Math.round((intVal(a) + intVal(b)) * 100) / 100;
+                                }, 0);
+                        }
+                    }
+
+                    for (i = 0; i < colCount; i++) {
+                        // Update footer
+                        if (i > 4) {
+                            $( api.column( i ).footer() ).html(
+                                total[i].toLocaleString()
+                            );
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock scripts %}

@@ -15,7 +15,7 @@ from payroll.models import PayrollPeriod, PayrollCenterEds, EarningDeductionType
 from reports.helpers.mailer import Mailer
 from reports.models import ExTraSummaryReportInfo, SocialSecurityReport, TaxationReport, CashReport, BankReport
 from support_data.models import SudaneseTaxRates
-from users.models import Employee, PayrollProcessors, User
+from users.models import Employee, PayrollProcessors, User, Notification
 
 
 @shared_task
@@ -186,6 +186,7 @@ def add_user_to_payroll_processor(instance_id, payroll_period_id=None):
 def processor(request_user_id, payroll_period_id, process_with_rate=None, method='GET', user_id=None):
     request_user = User.objects.get(pk=request_user_id)
     payroll_period = PayrollPeriod.objects.get(pk=payroll_period_id)
+    Notification.objects.create(to_user=request_user)
     user = None
     if user_id is not None:
         user = Employee.objects.get(pk=user_id)
@@ -479,6 +480,10 @@ def update_or_create_user_summary_report(report_id, user_id, net_pay, total_dedu
         deductions = processors.filter(earning_and_deductions_type__display_number__gt=6) \
             .filter(earning_and_deductions_type__display_number__lt=21).all()
 
+        if not created:
+            report.earnings_to_display.clear()
+            report.deductions_to_display.clear()
+
         for earning in earnings.iterator():
             report.earnings_to_display.add(earning)
 
@@ -490,8 +495,9 @@ def update_or_create_user_summary_report(report_id, user_id, net_pay, total_dedu
         report.total_deductions = total_deductions
         report.save()
     except (Exception, AttributeError) as e:
-        logger.error(f'an error occurred while processing summary report for {employee.user.get_full_name()}' )
+        logger.error(f'an error occurred while processing summary report for {employee.user.get_full_name()}')
         logger.error(e.args)
+        report.delete()
 
     if created:
         logger.info(f'created summary report for {employee.user.get_full_name()}')
@@ -499,6 +505,7 @@ def update_or_create_user_summary_report(report_id, user_id, net_pay, total_dedu
         logger.info(f'updated summary report for {employee.user.get_full_name()}')
 
 
+# noinspection DuplicatedCode
 @shared_task
 def update_or_create_user_social_security_report(report_id, user_id, period_id):
     report, created = SocialSecurityReport.objects.get_or_create(report_id=report_id)
@@ -514,12 +521,17 @@ def update_or_create_user_social_security_report(report_id, user_id, period_id):
         report.summary_report = ExTraSummaryReportInfo.objects.get(key=report_id)
         processors = PayrollProcessors.objects.filter(payroll_period_id=period_id).filter(employee_id=user_id) \
             .filter(Q(earning_and_deductions_type_id=32) | Q(earning_and_deductions_type_id=31)).all()
+
+        if not created:
+            report.earnings.clear()
+
         for item in processors.iterator():
             report.earnings.add(item)
         report.save()
     except (Exception, AttributeError) as e:
-        logger.error(f'an error occurred while processing social security report for {employee.user.get_full_name()}' )
+        logger.error(f'an error occurred while processing social security report for {employee.user.get_full_name()}')
         logger.error(e.args)
+        report.delete()
 
     if created:
         logger.info(f'created social security report for {employee.user.get_full_name()}')
@@ -534,18 +546,29 @@ def update_or_create_user_taxation_report(report_id, user_id, period_id):
     employee = User.objects.get(pk=user_id).employee
     try:
         report.period = PayrollPeriod.objects.filter(pk=period_id).values_list('month').first()[0]
+        report.agresso_number = employee.agresso_number
         report.staff_full_name = employee.user.get_full_name()
         report.cost_centre = employee.cost_centre.cost_centre
         report.tin_number = employee.tin_number
         report.summary_report = ExTraSummaryReportInfo.objects.get(key=report_id)
-        processors = PayrollProcessors.objects.filter(payroll_period_id=period_id).filter(employee_id=user_id)\
+        earnings = PayrollProcessors.objects.filter(payroll_period_id=period_id).filter(employee_id=user_id) \
+            .filter(earning_and_deductions_type__display_number__lt=7).all()
+        deductions = PayrollProcessors.objects.filter(payroll_period_id=period_id).filter(employee_id=user_id) \
             .filter(earning_and_deductions_type_id=61).all()
-        for item in processors.iterator():
+
+        if not created:
+            report.earnings.clear()
+            report.deductions.clear()
+
+        for item in earnings.iterator():
             report.earnings.add(item)
+        for item in deductions.iterator():
+            report.deductions.add(item)
         report.save()
     except (Exception, AttributeError) as e:
-        logger.error(f'an error occurred while processing taxation report for {employee.user.get_full_name()}' )
+        logger.error(f'an error occurred while processing taxation report for {employee.user.get_full_name()}')
         logger.error(e.args)
+        report.delete()
 
     if created:
         logger.info(f'created taxation report for {employee.user.get_full_name()}')
@@ -562,6 +585,7 @@ def update_or_create_user_bank_report(report_id, user_id, period_id):
             report, created = BankReport.objects.get_or_create(report_id=report_id)
             try:
                 report.period = PayrollPeriod.objects.filter(pk=period_id).values_list('month').first()[0]
+                report.agresso_number = employee.agresso_number
                 report.staff_full_name = employee.user.get_full_name()
                 report.payment_location = employee.payment_location.duty_station
                 report.bank = employee.bank_1.bank
@@ -572,6 +596,7 @@ def update_or_create_user_bank_report(report_id, user_id, period_id):
             except (Exception, AttributeError) as e:
                 logger.error(f'an error occurred while processing bank report for {employee.user.get_full_name()}')
                 logger.error(e.args)
+                report.delete()
 
             if created:
                 logger.info(f'created bank report 1 for {employee.user.get_full_name()}')
@@ -582,6 +607,7 @@ def update_or_create_user_bank_report(report_id, user_id, period_id):
             report, created = BankReport.objects.get_or_create(report_id=report_id)
             try:
                 report.period = PayrollPeriod.objects.filter(pk=period_id).values_list('month').first()[0]
+                report.agresso_number = employee.agresso_number
                 report.staff_full_name = employee.user.get_full_name()
                 report.payment_location = employee.payment_location.duty_station
                 report.bank = employee.bank_2.bank
@@ -592,6 +618,7 @@ def update_or_create_user_bank_report(report_id, user_id, period_id):
             except (Exception, AttributeError) as e:
                 logger.error(f'an error occurred while processing bank report for {employee.user.get_full_name()}')
                 logger.error(e.args)
+                report.delete()
 
             if created:
                 logger.info(f'created bank report 2 for {employee.user.get_full_name()}')
@@ -606,6 +633,7 @@ def update_or_create_user_cash_report(report_id, user_id, period_id):
         report, created = CashReport.objects.get_or_create(report_id=report_id)
         try:
             report.period = PayrollPeriod.objects.filter(pk=period_id).values_list('month').first()[0]
+            report.agresso_number = employee.agresso_number
             report.staff_full_name = employee.user.get_full_name()
             report.job_title = employee.job_title.job_title
             report.payment_location = employee.payment_location.duty_station
@@ -614,6 +642,7 @@ def update_or_create_user_cash_report(report_id, user_id, period_id):
         except (Exception, AttributeError) as e:
             logger.error(f'an error occurred while processing cash report for {employee.user.get_full_name()}')
             logger.error(e.args)
+            report.delete()
 
         if created:
             logger.info(f'created cash report for {employee.user.get_full_name()}')

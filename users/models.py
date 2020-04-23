@@ -373,3 +373,14 @@ class PayrollProcessorManager(models.Model):
     payroll_period = models.OneToOneField('payroll.PayrollPeriod', on_delete=models.CASCADE, primary_key=True)
     processed_status = models.CharField(max_length=3, default='NO')
     number_of_approvers = models.IntegerField(default=0)
+
+
+class Notification(models.Model):
+    to_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True, blank=True)
+    message = models.CharField(max_length=400, null=True, blank=True)
+    read = models.BooleanField(default=False)
+    received = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.to_user}'

@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import time
 
@@ -20,7 +21,7 @@ from support_data.forms import DeclinePayrollMessageForm
 from users.forms import EarningsProcessUpdateForm, DeductionsProcessUpdateForm
 from users.models import PayrollProcessors, Employee
 from .forms import ReportGeneratorForm, ReconciliationReportGeneratorForm
-from .models import ExTraSummaryReportInfo
+from .models import ExTraSummaryReportInfo, SocialSecurityReport, TaxationReport, BankReport, CashReport
 from payroll.models import EarningDeductionType
 
 logger = logging.getLogger('payroll')
@@ -265,53 +266,101 @@ def generate_reports(request):
                 .filter(year=year).filter(month=selected_month).first()
 
             if payroll_period:
-                extra_reports = ExTraSummaryReportInfo.objects.select_related('employee') \
-                    .filter(payroll_period_id=payroll_period.pk).all()
-                if extra_reports.exists():
-                    logger.info(f'generating report data for {selected_month}-{year}')
 
-                    results = generate(payroll_period, report, system_user)
+                payroll_period_ids = [payroll_period.id]
+                periods = PayrollPeriod.objects.filter(id__in=payroll_period_ids).select_related(
+                    'payroll_center').all()
+                periods_keys_dict = {period.payroll_key: 'report_id__istartswith' for period in
+                                     periods.iterator()}
 
-                    earnings = None
-                    if 'earnings' in results.keys():
-                        earnings = results['earnings']
-                        del results['earnings']
+                if payroll_period_ids:
+                    counter = 0
+                    queries = None
+                    for key, val in periods_keys_dict.items():
+                        if counter < len(payroll_period_ids) - 1:
+                            queries |= Q(**{periods_keys_dict[key]: key})
+                        elif counter == len(payroll_period_ids) - 1:
+                            queries = Q(**{periods_keys_dict[key]: key})
 
-                    if report == 'LEGER_EXPORT':
-                        results = generate_leger_export(results, payroll_period)
+                    if len(payroll_period_ids) <= 1:
+                        title = f'{report} REPORT FOR PERIOD {periods.first().month}, {periods.first().year}'
+                    else:
+                        title = f'{report} REPORT FOR PERIOD FROM {periods.first().month} TO {periods.last().month} , {periods.first().year}'
+
+                    object_list = None
+                    report_template = ''
+                    if report == 'NSIF':
+                        object_list = SocialSecurityReport.objects.filter(queries).select_related(
+                            'summary_report').all() \
+                            .prefetch_related('earnings', 'earnings__earning_and_deductions_type',
+                                              'earnings__earning_and_deductions_type__payrollprocessors_set')
+
+                        report_template = 'reports/nssfreport_list.html'
+
+                    elif report == 'PIT':
+                        object_list = TaxationReport.objects.filter(queries).select_related(
+                            'summary_report').all() \
+                            .prefetch_related('earnings', 'earnings__earning_and_deductions_type',
+                                              'earnings__earning_and_deductions_type__payrollprocessors_set')
+
+                        report_template = 'reports/taxationreport_list.html'
+
+                    elif report == 'BANK':
+                        object_list = BankReport.objects.filter(queries).select_related(
+                            'summary_report').all()
+
+                        report_template = 'reports/bankreport_list.html'
+
+                    elif report == 'CASH':
+                        object_list = CashReport.objects.filter(queries).select_related(
+                            'summary_report').all()
+
+                        report_template = 'reports/cashreport_list.html'
+                    elif report == 'LEGER_EXPORT':
+                        extra_reports = ExTraSummaryReportInfo.objects.select_related('employee') \
+                            .filter(payroll_period_id=payroll_period.pk).all()
+                        if extra_reports.exists():
+                            logger.info(f'generating report data for {selected_month}-{year}')
+
+                            results = generate(payroll_period, report, system_user)
+
+                            results = generate_leger_export(results, payroll_period)
+
+                            context = {
+                                'title': report.capitalize() + ' Report',
+                                'report': report,
+                                'results': results,
+                            }
+
+                            if report == 'LEGER_EXPORT':
+                                NUM_MONTHS = {
+                                    'JANUARY': 1,
+                                    'FEBRUARY': 2,
+                                    'MARCH': 3,
+                                    'APRIL': 4,
+                                    'MAY': 5,
+                                    'JUNE': 6,
+                                    'JULY': 7,
+                                    'AUGUST': 8,
+                                    'SEPTEMBER': 9,
+                                    'OCTOBER': 10,
+                                    'NOVEMBER': 11,
+                                    'DECEMBER': 12
+                                }
+                                context['trans_date'] = datetime.datetime(int(year), NUM_MONTHS[payroll_period.month],
+                                                                          28) \
+                                    .strftime("%d/%m/%Y")
+
+                            return render(request, 'reports/generated_report.html', context)
 
                     context = {
-                        'title': report.capitalize() + ' Report',
-                        'report': report,
-                        'results': results,
+                        'title': title,
+                        'payroll_centre': payroll_center,
+                        'object_list': object_list,
+                        'periods': payroll_period_ids
                     }
 
-                    if report == 'LEGER_EXPORT':
-                        NUM_MONTHS = {
-                            'JANUARY': 1,
-                            'FEBRUARY': 2,
-                            'MARCH': 3,
-                            'APRIL': 4,
-                            'MAY': 5,
-                            'JUNE': 6,
-                            'JULY': 7,
-                            'AUGUST': 8,
-                            'SEPTEMBER': 9,
-                            'OCTOBER': 10,
-                            'NOVEMBER': 11,
-                            'DECEMBER': 12
-                        }
-                        context['trans_date'] = datetime.datetime(int(year), NUM_MONTHS[payroll_period.month], 28) \
-                            .strftime("%d/%m/%Y")
-
-                    if report == 'PAYE':
-                        context['earnings'] = earnings
-                        context['title'] = 'PIT'
-
-                    if report == 'NSSF':
-                        context['title'] = 'NSIF'
-
-                    return render(request, 'reports/generated_report.html', context)
+                    return render(request, report_template, context)
                 else:
                     logger.error(f'PayrollPeriod ({payroll_period}) not processed yet!')
                     messages.warning(request, f'PayrollPeriod ({payroll_period}) has not been processed yet!')

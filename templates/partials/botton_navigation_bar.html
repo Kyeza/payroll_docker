@@ -1,4 +1,4 @@
-<nav id="bottom-nav" class="navbar navbar-expand-lg navbar-light bg-light py-2 shadow">
+<nav id="bottom-nav" class="my-css navbar navbar-expand-lg navbar-light bg-light py-2 shadow">
     <a class="navbar-brand ml-10" href="{% url 'payroll:index' %}">
         <img src="/media/logo.png" class="img-fluid" style="width: 2em; height: 2em">
     </a>
@@ -20,7 +20,8 @@
                     <a class="dropdown-item" href="{% url 'users:rejected-employee-list' %}">Rejected New Employee</a>
                     <a class="dropdown-item" href="{% url 'users:separated-employee' %}">Separated Employees</a>
                     <a class="dropdown-item" href="{% url 'users:terminate-employee-list' %}">Terminate Employee</a>
-                    <a class="dropdown-item" href="{% url 'users:employee-assign-project' %}">Assign Employee Projects</a>
+                    <a class="dropdown-item" href="{% url 'users:employee-assign-project' %}">Assign Employee
+                        Projects</a>
                     <a class="dropdown-item" href="{% url 'users:employee-project-list' %}">Employee Projects</a>
                     <a class="dropdown-item" href="{% url 'users:employee-birthday-list' %}">Employee Birthdays</a>
                     <a class="dropdown-item" href="{% url 'users:change_employee_user_group' %}">Change User Group</a>
@@ -34,8 +35,10 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" href="{% url 'users:employee-approval' %}">New Employee Approval</a>
                     <a class="dropdown-item" href="{% url 'users:employee_movements' %}">Employee Movements Entry</a>
-                    <a class="dropdown-item" href="{% url 'users:employee_movements_enums' %}">Salary/Earnings Movements</a>
-                    <a class="dropdown-item" href="{% url 'users:employee_movements_changelist' %}">Employee Movements Approval</a>
+                    <a class="dropdown-item" href="{% url 'users:employee_movements_enums' %}">Salary/Earnings
+                        Movements</a>
+                    <a class="dropdown-item" href="{% url 'users:employee_movements_changelist' %}">Employee Movements
+                        Approval</a>
                 </div>
             </li>
             <li class="nav-item dropdown">
@@ -85,7 +88,8 @@
                             <a class="dropdown-item" href="{% url 'support_data:duty-station-list' %}">Duty Station</a>
                             <a class="dropdown-item" href="{% url 'support_data:department-list' %}">Departments</a>
                             <a class="dropdown-item" href="{% url 'support_data:job-title-list' %}">Job Titles</a>
-                            <a class="dropdown-item" href="{% url 'support_data:contract-type-list' %}">Contract Types</a>
+                            <a class="dropdown-item" href="{% url 'support_data:contract-type-list' %}">Contract
+                                Types</a>
                             <a class="dropdown-item" href="{% url 'users:category_create' %}">Add Staff Category</a>
                             <a class="dropdown-item" href="{% url 'users:category_list' %}">Edit Staff Categories</a>
                         </div>
