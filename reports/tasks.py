@@ -476,12 +476,16 @@ def update_or_create_user_summary_report(report_id, user_id, net_pay, total_dedu
     processors = PayrollProcessors.objects.filter(payroll_period_id=period_id).filter(employee_id=user_id)
 
     try:
+        report.payroll_period_id = period_id
         report.employee_name = employee.user.get_full_name()
         report.analysis = employee.agresso_number
         report.job_title = employee.job_title.job_title
         report.employee_id = employee.pk
+        report.duty_station = employee.duty_station.duty_station
+        report.cost_centre = employee.cost_centre.cost_centre
+        report.agresso_number = employee.agresso_number
 
-        earnings = processors.filter(earning_and_deductions_type__display_number__lt=7).all()
+        earnings = processors.filter(Q(earning_and_deductions_type__display_number__lt=7) | Q(earning_and_deductions_type_id=78)).all()
         deductions = processors.filter(earning_and_deductions_type__display_number__gt=6) \
             .filter(earning_and_deductions_type__display_number__lt=21).all()
 

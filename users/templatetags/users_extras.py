@@ -1,7 +1,4 @@
 from django import template
-from django.http import HttpRequest
-
-from users.models import PayrollProcessors
 
 register = template.Library()
 
@@ -31,9 +28,9 @@ def user_data(processors, staff):
 
 
 @register.filter
-def user_working_days(processors, staff):
-    if processors is not None and processors != '':
-        data = processors.filter(employee_id=staff.pk).filter(earning_and_deductions_type_id=78).values('amount')
+def user_working_days(processors):
+    if processors.count() > 0:
+        data = processors.filter(earning_and_deductions_type_id=78).values('amount')
         return list(data)[0]['amount']
 
 
@@ -55,7 +52,13 @@ def report_key(payroll_period, staff):
 
 @register.filter
 def report(staff, period):
-    return staff.report.filter(payroll_period=period).first()
+    r = staff.report.filter(payroll_period=period).first()
+    return r
+
+
+@register.filter
+def exclude_earning(processors, e_id):
+    return processors.exclude(earning_and_deductions_type_id=e_id).iterator()
 
 
 @register.filter
