@@ -96,10 +96,10 @@
                         <td>{{ report.net_pay|intcomma }}</td>
                         <td>{{ staff.payment_type }}</td>
                         {% if staff.bank_1 is not None %}
-                            <td>staff.bank_1</td>
-                            <td>staff.first_account_number</td>
+                            <td>{{ staff.bank_1 }}</td>
+                            <td>{{ staff.first_account_number }}</td>
                         {% else %}
-                            <td>{{ staff.paymeny_type }}</td>
+                            <td>{{ staff.payment_type }}</td>
                             <td></td>
                         {% endif %}
                     {% endwith %}
