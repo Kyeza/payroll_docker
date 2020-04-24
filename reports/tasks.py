@@ -183,6 +183,15 @@ def add_user_to_payroll_processor(instance_id, payroll_period_id=None):
 
 
 @shared_task
+def run_reports_tasks(payroll_period_id):
+    reports = ExTraSummaryReportInfo.objects.filter(payroll_period_id=payroll_period_id).all()
+    for report in reports:
+        update_or_create_user_social_security_report.delay(report.id, report.employee_id, payroll_period_id)
+        update_or_create_user_taxation_report.delay(report.id, report.employee_id, payroll_period_id)
+        update_or_create_user_bank_report.delay(report.id, report.employee_id, payroll_period_id)
+        update_or_create_user_cash_report.delay(report.id, report.employee_id, payroll_period_id)
+
+
 def processor(request_user_id, payroll_period_id, process_with_rate=None, method='GET', user_id=None):
     request_user = User.objects.get(pk=request_user_id)
     payroll_period = PayrollPeriod.objects.get(pk=payroll_period_id)
@@ -446,12 +455,8 @@ def processor(request_user_id, payroll_period_id, process_with_rate=None, method
             working_days.save()
 
         report_id = f'{payroll_period.payroll_key}S{employee.pk}'
-        update_or_create_user_summary_report.delay(report_id, employee.pk, net_pay, total_deductions, gross_earnings,
-                                                   payroll_period_id)
-        update_or_create_user_social_security_report.delay(report_id, employee.pk, payroll_period_id)
-        update_or_create_user_taxation_report.delay(report_id, employee.pk, payroll_period_id)
-        update_or_create_user_bank_report.delay(report_id, employee.pk, payroll_period_id)
-        update_or_create_user_cash_report.delay(report_id, employee.pk, payroll_period_id)
+        update_or_create_user_summary_report(report_id, employee.pk, net_pay, total_deductions, gross_earnings,
+                                             payroll_period_id)
 
         logger.info(f'Successfully processed {employee} Payroll Period')
 
@@ -462,9 +467,9 @@ def processor(request_user_id, payroll_period_id, process_with_rate=None, method
     if method == 'POST':
         logger.debug(f'Displaying report {response}')
         return response
+    run_reports_tasks.delay(payroll_period)
 
 
-@shared_task
 def update_or_create_user_summary_report(report_id, user_id, net_pay, total_deductions, gross_earnings, period_id):
     report, created = ExTraSummaryReportInfo.objects.get_or_create(key=report_id)
     employee = User.objects.get(pk=user_id).employee

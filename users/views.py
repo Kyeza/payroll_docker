@@ -439,8 +439,9 @@ def process_payroll_period(request, pk, user=None):
         payroll_period = get_object_or_404(PayrollPeriod, pk=pk)
         process_with_rate = float(request.POST.get('process_with_rate'))
         try:
-            processor.delay(request.user.id, payroll_period.id, process_with_rate, 'POST')
-            response = {'message': 'Successfully process Payroll Period with dollar rate of 161.14', 'status': 'Success'}
+            processor(request.user.id, payroll_period.id, process_with_rate, 'POST')
+            response = {'message': 'Successfully process Payroll Period with dollar rate of 161.14',
+                        'status': 'Success'}
         except Exception as e:
             logger.error(f'Something went wrong {e.args}')
             response = {'status': f'Failed: {e.args}', 'message': ''}
@@ -451,8 +452,8 @@ def process_payroll_period(request, pk, user=None):
     elif request.method == 'GET':
         employee = Employee.objects.get(pk=user)
         payroll_period = get_object_or_404(PayrollPeriod, pk=pk)
-        processor.delay(request.user.id, payroll_period.id, process_with_rate=payroll_period.processing_dollar_rate,
-                        user_id=employee.pk)
+        processor(request.user.id, payroll_period.id, process_with_rate=payroll_period.processing_dollar_rate,
+                  user_id=employee.pk)
         return redirect('reports:display-summary-report', payroll_period.id)
 
 

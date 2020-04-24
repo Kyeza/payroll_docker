@@ -14,7 +14,7 @@
       "is_active": true,
       "date_joined": "2015-07-01T00:00:00Z",
       "middle_name": null,
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -33,7 +33,7 @@
       "is_active": true,
       "date_joined": "2015-07-01T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -52,7 +52,7 @@
       "is_active": true,
       "date_joined": "2015-07-01T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -71,7 +71,7 @@
       "is_active": true,
       "date_joined": "2011-06-01T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -90,7 +90,7 @@
       "is_active": true,
       "date_joined": "2015-01-01T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -109,7 +109,7 @@
       "is_active": true,
       "date_joined": "2010-09-29T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -128,7 +128,7 @@
       "is_active": true,
       "date_joined": "2011-04-01T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -147,7 +147,7 @@
       "is_active": true,
       "date_joined": "2015-01-01T00:00:00Z",
       "middle_name": "Philip",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -166,7 +166,7 @@
       "is_active": true,
       "date_joined": "2015-11-17T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -185,7 +185,7 @@
       "is_active": true,
       "date_joined": "2015-07-01T00:00:00Z",
       "middle_name": "",
-      "groups": [],
+      "groups": [6],
       "user_permissions": []
     }
   },
@@ -193,7 +193,7 @@
     "model": "users.employee",
     "pk": 1,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": "924687476",
@@ -251,7 +251,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281006",
       "documents": "",
       "payment_location": 4,
@@ -262,7 +262,7 @@
     "model": "users.employee",
     "pk": 2,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": "922407128",
@@ -320,7 +320,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281031",
       "documents": "",
       "payment_location": 4,
@@ -331,7 +331,7 @@
     "model": "users.employee",
     "pk": 3,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": "923543846",
@@ -389,7 +389,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281152",
       "documents": "",
       "payment_location": 5,
@@ -400,7 +400,7 @@
     "model": "users.employee",
     "pk": 4,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": null,
@@ -458,7 +458,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281223",
       "documents": "",
       "payment_location": 2,
@@ -469,7 +469,7 @@
     "model": "users.employee",
     "pk": 5,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": "922407113",
@@ -527,7 +527,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281236",
       "documents": "",
       "payment_location": 4,
@@ -538,7 +538,7 @@
     "model": "users.employee",
     "pk": 6,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": null,
@@ -596,7 +596,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281338",
       "documents": "",
       "payment_location": 2,
@@ -607,7 +607,7 @@
     "model": "users.employee",
     "pk": 7,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": null,
@@ -665,7 +665,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281459",
       "documents": "",
       "payment_location": 11,
@@ -676,7 +676,7 @@
     "model": "users.employee",
     "pk": 8,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": null,
@@ -734,7 +734,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281177",
       "documents": "",
       "payment_location": 10,
@@ -745,7 +745,7 @@
     "model": "users.employee",
     "pk": 9,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": "925454190",
@@ -803,7 +803,7 @@
       "kin_nationality": 1,
       "kin_passport_number": null,
       "kin_address": null,
-      "employment_status": "APPROVED",
+      "employment_status": "RECRUIT",
       "agresso_number": "7281631",
       "documents": "",
       "payment_location": 3,
@@ -814,7 +814,7 @@
     "model": "users.employee",
     "pk": 10,
     "fields": {
-      "user_group": 1,
+      "user_group": 6,
       "marital_status": "MARRIED",
       "image": "default.png",
       "mobile_number": "921741287",
