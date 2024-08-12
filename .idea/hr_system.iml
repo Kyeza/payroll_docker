@@ -21,8 +21,9 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/venv" />
+      <excludeFolder url="file://$MODULE_DIR$/venv-dev" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.8 (payroll_docker)" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.12 (dj-rest-auth)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Django Lib" level="project" />
     <orderEntry type="library" name="Google App Engine SDK" level="project" />

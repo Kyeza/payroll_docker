@@ -1,39 +1,44 @@
-version: "3"
-
 services:
   db:
-    image: mysql:5.7
+    image: mysql:8.0
+    platform: linux/amd64
+    restart: always
+    command: mysqld --default-authentication-plugin=mysql_native_password
     ports:
-      - '13306:3306'
+      - '3306:3306'
+    env_file:
+      - .env
     environment:
-      MYSQL_DATABASE: 'payroll_schema'
-      MYSQL_USER: 'payroll'
-      MYSQL_PASSWORD: 'Kam12345'
-      MYSQL_ROOT_PASSWORD: "Kam12345"
+      - MYSQL_DATABASE=${SQL_DATABASE}
+      - MYSQL_USER=${SQL_USER}
+      - MYSQL_PASSWORD=${SQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${SQL_ROOT_PASSWORD}
     volumes:
-      - dbdata:/var/lib/mysql
+      - mysql:/var/lib/mysql
 
   web:
     build:
       context: .
+    platform: linux/amd64
     image: &hr_system hr_system
     ports:
       - "8000:8000"
-      - "3306:3306"
     volumes:
       - .:/hr_system
-    command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+    command: python manage.py runserver 0.0.0.0:8000
     env_file: &environ_file
       - .env
     depends_on:
       - db
       - rabbitmq
       - celery_worker
+    links:
+      - db
 
   celery_worker:
     build: .
     image: *hr_system
+    platform: linux/amd64
     env_file: *environ_file
     command: celery -A hr_system worker --loglevel=info -E --uid=celery
     volumes:
@@ -43,10 +48,16 @@ services:
       - db
 
   rabbitmq:
+    platform: linux/amd64
     image: rabbitmq:3.7-alpine
     env_file: *environ_file
     ports:
       - "15672:15672"
 
+  memcached:
+    image: memcached:alpine
+    ports:
+      - "11211:11211"
+
 volumes:
-  dbdata:
+    mysql:

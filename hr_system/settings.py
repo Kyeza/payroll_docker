@@ -22,13 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'this is my secret key'
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-#&")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = True
+DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "*").split(" ")
 
 # Application definition
 
@@ -45,6 +44,7 @@ INSTALLED_APPS = [
     'support_data.apps.SupportDataConfig',
     'reports.apps.ReportsConfig',
     'crispy_forms',
+    'crispy_bootstrap4',
     'bootstrap4',
     'debug_toolbar',
     'django.contrib.sites',
@@ -114,19 +114,16 @@ else:
     #     $ cloud_sql_proxy -instances=[INSTANCE_CONNECTION_NAME]=tcp:3306
     #
     # See https://cloud.google.com/sql/docs/mysql-connect-proxy
+
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'OPTIONS': {
-                'init_command': 'SET default_storage_engine=INNODB',
-                'sql_mode': 'STRICT_TRANS_TABLES',
-                'isolation_level': 'read committed'
-            },
-            'NAME': 'payroll_schema_ss',
-            'USER': 'root',
-            'PASSWORD': 'Kam12345',
-            'HOST': 'localhost',
-            'PORT': '3306',
+        "default": {
+            "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+            "OPTIONS": json.loads(os.environ.get("SQL_OPTIONS", "{}")),
+            "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, 'db.sqlite3')),
+            "USER": os.environ.get("SQL_USER", "myuser"),
+            "PASSWORD": os.environ.get("SQL_PASSWORD", "myuserpassword"),
+            "HOST": os.environ.get("SQL_HOST", "localhost"),
+            "PORT": os.environ.get("SQL_PORT", "3306"),
         }
     }
 # [END db_setup]
@@ -169,6 +166,7 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -212,28 +210,28 @@ LOGGING = {
 
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
-EMAIL_HOST = 'smtp.office365.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "southsudan.payroll@savethechildren.org"
-EMAIL_HOST_PASSWORD = "4Children@2020"
-DEFAULT_FROM_EMAIL = "southsudan.payroll@savethechildren.org"
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST = os.getenv('EMAIL_HOST')
+EMAIL_PORT = os.getenv('EMAIL_PORT')
+EMAIL_USE_TLS = bool(os.getenv('EMAIL_USE_TLS'))
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+        'BACKEND': os.environ.get('CACHE_BACKEND', 'django.core.cache.backends.locmem.LocMemCache'),
+        'LOCATION': os.environ.get('CACHE_LOCATION', 'unique-snowflake'),
     }
 }
 
-CACHE_MIDDLEWARE_ALIAS = 'default'
-CACHE_MIDDLEWARE_SECONDS = 000
-CACHE_MIDDLEWARE_KEY_PREFIX = 'SCUIG'
+CACHE_MIDDLEWARE_ALIAS = os.environ.get('CACHE_MIDDLEWARE_ALIAS', 'default')
+CACHE_MIDDLEWARE_SECONDS = os.environ.get('CACHE_MIDDLEWARE_SECONDS', 600)
+CACHE_MIDDLEWARE_KEY_PREFIX = os.environ.get('CACHE_MIDDLEWARE_KEY_PREFIX', '')
 
 CELERY_BROKER_URL = os.environ.get('BROKER_URL')
-CELERY_RESULT_BACKEND = 'django-db'
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
+CELERYBEAT_SCHEDULER = os.environ.get('CELERYBEAT_SCHEDULER', 'django_celery_beat.schedulers:DatabaseScheduler')
 
 # Other Celery settings
 CELERY_BEAT_SCHEDULE = {
